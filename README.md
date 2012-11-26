@@ -22,6 +22,10 @@ Methods
 * GET /museums - returns a list of museums
 * GET /museums/:id - returns a museum
 * GET /museums/:id/artworks - returns a list of artworks in the museum
+* GET /artists - returns a list of artists
+* GET /artists/:id - returns an artist
+* GET /artworks - returns a list of artworks
+* GET /artworks/:id - returns an artwork
 * POST /museums - adds a new museum
 * POST /artworks - adds a new artwork
 * POST /artist - adds a new artist
