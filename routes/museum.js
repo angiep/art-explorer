@@ -3,7 +3,8 @@
  * Routing methods for museums
  */
 
-var museum = require('../methods/museum');
+var museum = require('../methods/museum')
+    , utils = require('../utils');
 
 /*
  * GET /museums - returns a list of museums
@@ -11,7 +12,7 @@ var museum = require('../methods/museum');
 
 exports.list = function(req, res){
     var callback = function(json) {
-        res.send(json);
+        utils.sendJson(res, json);
     };
 
     museum.getAll(callback);
@@ -24,7 +25,7 @@ exports.list = function(req, res){
 
 exports.info = function(req, res) {
     var callback = function(json) {
-        res.send(json);
+        utils.sendJson(res, json);
     };
 
     museum.getById(req.params.museum_id, callback);
