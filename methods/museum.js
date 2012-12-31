@@ -1,3 +1,12 @@
+/*
+ * methods/museum.js
+ * Database methods for museums
+ */
+
+/*
+ * Initialize database and global variables
+ */
+
 var mongodb = require('mongodb')
     , ObjectID = mongodb.ObjectID
     , global = require('../global')
