@@ -1,6 +1,10 @@
 Art Explorer
 ============
-Application that allows users to search for a museum and retrieve information about the artworks within that museum. API built using Node.js and MongoDB.
+Application that allows users to search for a museum and retrieve information about the artworks within that museum. API built using Node.js, MongoDB, and Express.
+
+Data
+============
+Compiled from http://www.freebase.com/schema/visual_art 
 
 To Do
 ============
