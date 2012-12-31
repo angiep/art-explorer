@@ -3,6 +3,9 @@
  * Global utility methods
  */
 
+/*
+ * Send response back as JSON with correct Content-Type
+ */
 exports.sendJson = function(res, json) {
     if (!res || !json) return;
 

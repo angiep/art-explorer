@@ -36,5 +36,9 @@ exports.info = function(req, res) {
  */
 
 exports.artworks = function(req, res) {
-    museum.getArtworks(req.params.museum_id);
+    var callback = function(json) {
+        utils.sendJson(res, json);
+    };
+
+    museum.getArtworksForMuseum(req.params.museum_id, callback);
 };
