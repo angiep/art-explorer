@@ -32,5 +32,5 @@ exports.config = {
 
 exports.errorMessages = {
     emptyResponse: 'No results were found.',
-    incorrectParams: 'The required parameters were not provided.'
+    incorrectParams: 'Invalid parameters were provided'
 };

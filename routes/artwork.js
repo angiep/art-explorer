@@ -15,7 +15,12 @@ exports.list = function(req, res){
         utils.sendJson(res, json);
     };
 
-    artwork.getAll(callback);
+    if (req.query.name) {
+        artwork.searchByName(req.query.name, callback);
+        return;
+    }
+
+    artwork.getAll(callback, 0, 25);
 };
 
 

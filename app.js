@@ -54,7 +54,7 @@ var setup = function() {
      */
     app.get('/artists', artist.list);
     app.get('/artists/:artist_id', artist.info);
-    //app.get('/artists/:artist_id/artworks', artist.artworks);
+    app.get('/artists/:artist_id/artworks', artist.artworks);
 
     /*
      * Artwork Routes

@@ -15,7 +15,7 @@ exports.list = function(req, res){
         utils.sendJson(res, json);
     };
 
-    museum.getAll(callback);
+    museum.getAll(callback, 0, 25);
 };
 
 

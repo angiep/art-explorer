@@ -1,6 +1,6 @@
 /*
- * methods/museum.js
- * Database methods for museums
+ * methods/artist.js
+ * Database methods for artists
  */
 
 /*
@@ -15,7 +15,7 @@ var mongodb = require('mongodb')
     , common = require('../common')
     , server = new mongodb.Server(config.development.db_server, 27017, {})
     , database = new mongodb.Db(config.development.db, server, {w: 1})
-    , collectionName = 'art_owners'
+    , collectionName = 'visual_artist'
     , response = undefined;
 
 exports.getAll = function(callback, offset, count) {
@@ -26,7 +26,7 @@ exports.getById = function(id, callback) {
     common.getById(collectionName, database, callback, id);
 };
 
-exports.getArtworksForMuseum = function(id, callback) {
+exports.getArtworksByArtist = function(id, callback) {
    
     if (!utils.isValidId(id)) {
         if (typeof callback === 'function') callback(utils.formatError(global.errorMessages.incorrectParams));
@@ -36,14 +36,14 @@ exports.getArtworksForMuseum = function(id, callback) {
     database.open(function(error, client) {
         if (error) throw error;
 
-        var artOwners = new mongodb.Collection(client, collectionName);
+        var artists = new mongodb.Collection(client, collectionName);
         var artworks;
 
-        artOwners.findOne({'_id': new ObjectID(id)}, function(error, owner) {
+        artists.findOne({'_id': new ObjectID(id)}, function(error, artist) {
             if (error) throw error;
-            if (owner) {
-                artworks = new mongodb.Collection(client, 'artwork_owner_relationship');
-                artworks.find({'owner': owner.name}).toArray(function(error, docs) {
+            if (artist) {
+                artworks = new mongodb.Collection(client, 'artworks');
+                artworks.find({'artist': artist.name}).toArray(function(error, docs) {
                     response = JSON.stringify(docs);
                     if (typeof callback === 'function') callback(response);
                     database.close();
@@ -51,4 +51,8 @@ exports.getArtworksForMuseum = function(id, callback) {
             }
         });
     });
+};
+
+exports.searchByName = function(name, callback) {
+    common.searchByName(collectionName, database, callback, name);
 };
