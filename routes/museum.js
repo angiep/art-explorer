@@ -15,6 +15,11 @@ exports.list = function(req, res){
         utils.sendJson(res, json);
     };
 
+    if (req.query.name) {
+        museum.searchByName(req.query.name, callback);
+        return;
+    }
+
     museum.getAll(callback, 0, 25);
 };
 

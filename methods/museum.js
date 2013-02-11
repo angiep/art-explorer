@@ -26,6 +26,10 @@ exports.getById = function(id, callback) {
     common.getById(collectionName, database, callback, id);
 };
 
+exports.searchByName = function(name, callback) {
+    common.searchByName(collectionName, database, callback, name);
+};
+
 exports.getArtworksForMuseum = function(id, callback) {
    
     if (!utils.isValidId(id)) {
