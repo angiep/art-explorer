@@ -6,9 +6,9 @@ var express = require('express')
     , mongodb = require('mongodb')
     , global = require('./global')
     , routes = require('./routes')
-    , museum = require('./routes/museum')
-    , artist = require('./routes/artist')
-    , artwork = require('./routes/artwork')
+    , museumAPI = require('./routes/api/museum')
+    , artistAPI = require('./routes/api/artist')
+    , artworkAPI = require('./routes/api/artwork')
     , http = require('http')
     , path = require('path');
 
@@ -43,24 +43,24 @@ var setup = function() {
     app.get('/', routes.index);
 
     /*
-     * Museum Routes
+     * Museum API Routes
      */
-    app.get('/museums', museum.list);
-    app.get('/museums/:museum_id', museum.info);
-    app.get('/museums/:museum_id/artworks', museum.artworks);
+    app.get('/api/museums', museumAPI.list);
+    app.get('/api/museums/:museum_id', museumAPI.info);
+    app.get('/api/museums/:museum_id/artworks', museumAPI.artworks);
 
     /* 
-     * Artist Routes
+     * Artist API Routes
      */
-    app.get('/artists', artist.list);
-    app.get('/artists/:artist_id', artist.info);
-    app.get('/artists/:artist_id/artworks', artist.artworks);
+    app.get('/api/artists', artistAPI.list);
+    app.get('/api/artists/:artist_id', artistAPI.info);
+    app.get('/api/artists/:artist_id/artworks', artistAPI.artworks);
 
     /*
-     * Artwork Routes
+     * Artwork API Routes
      */
-    app.get('/artworks', artwork.list);
-    app.get('/artworks/:artwork_id', artwork.info);
+    app.get('/api/artworks', artworkAPI.list);
+    app.get('/api/artworks/:artwork_id', artworkAPI.info);
 
     http.createServer(app).listen(app.get('port'), function(){
         console.log('Express server listening on port ' + app.get('port'));
