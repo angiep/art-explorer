@@ -6,6 +6,7 @@
 var mongodb = require('mongodb')
     , ObjectID = mongodb.ObjectID
     , global = require('./global')
+    , config = global.config
     , utils = require('./utils');
 
 /*
