@@ -1,16 +1,15 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-  </head>
-  <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
-  </body>
+    <head>
+        <title><%= title %></title>
+        <link rel='stylesheet' href='/stylesheets/style.css' />
+    </head>
+    <body>
+        <div id="wrapper">
+            <h1><%= title %></h1>
+        </div>
 
-  <script type="text/javascript" src="/javascripts/jquery.min.js"></script>
-  <script type="text/javascript" src="/javascripts/underscore.js"></script>
-  <script type="text/javascript" src="/javascripts/backbone.js"></script>
+        <script data-main="/js/main" src="/js/lib/require.js"></script>
+    </body>
 
 </html>
