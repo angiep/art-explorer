@@ -7,7 +7,7 @@
     <body>
         <div id="wrapper">
             <h1><%= title %></h1>
-            <input value="searchbar" placeholder="Search for a museum"/>
+            <input id="searchbar" class="spacing" type="text" placeholder="Search for a museum"/>
 
             <div class="content">
                 <% if (list) { %>
@@ -17,6 +17,7 @@
                             <li><%= list[i].name %></li>
                         <% } %>
 
+                        <div class="clear"></div>
                     </ul>
                 <% } %>
             </div>
