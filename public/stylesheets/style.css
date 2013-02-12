@@ -86,6 +86,11 @@ h1 {
     height: 163px;
     width: 163px;
 }
+.list-wrapper li a {
+    display: block;
+    height: 100%;
+    width: 100%;
+}
 .list-wrapper li:nth-child(5n) {
     margin-right: 0;
 }

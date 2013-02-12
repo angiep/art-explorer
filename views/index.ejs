@@ -14,7 +14,11 @@
                     <ul class="list-wrapper">
 
                         <% for (var i = 0; i < list.length; i++) { %>
-                            <li><%= list[i].name %></li>
+                            <li>
+                                <a href="/api/museums/<%= list[i]._id %>">
+                                    <div><%= list[i].name %></div>
+                                </a>
+                            </li>
                         <% } %>
 
                         <div class="clear"></div>
