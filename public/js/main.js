@@ -14,7 +14,10 @@ require.config({
         }
     },
     paths: {
-        app: "/js/app"
+        app: "/js/app",
+        models: "/js/models",
+        collections: "/js/collections",
+        views: "/js/views"
     }
 });
 

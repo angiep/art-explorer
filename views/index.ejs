@@ -11,11 +11,18 @@
 
             <div class="content">
                 <% if (list) { %>
+
+                    <div class="navigation spacing">
+                        <div class="prev-arrow">Previous</div>
+                        <div class="next-arrow">Next</div>
+                        <div class="clear"></div>
+                    </div>
+
                     <ul class="list-wrapper">
 
                         <% for (var i = 0; i < list.length; i++) { %>
                             <li>
-                                <a href="/api/museums/<%= list[i]._id %>">
+                                <a href="/museums/<%= list[i]._id %>">
                                     <div><%= list[i].name %></div>
                                 </a>
                             </li>
@@ -28,7 +35,15 @@
 
         </div>
 
+        <script type="text/javascript">
+            var data = "";
+            <% if (dump) { %>
+                data = <%- dump %>;
+            <% } %>
+        </script>
+
         <script data-main="/js/main" src="/js/lib/require.js"></script>
+
     </body>
 
 </html>

@@ -1,8 +1,5 @@
-var app = app || {};
-
-(function() {
+define(["backbone"], function() {
 	'use strict';
-
 
     /*
      * Museum Model "Art Owner"
@@ -17,9 +14,12 @@ var app = app || {};
 
 	app.Museum = Backbone.Model.extend({
 
+        idAttribute: "_id",
         defaults: {},
-        initialize: {}
+        initialize: function() {}
 
 	});
 
-}());
+    return app.Museum;
+
+});
