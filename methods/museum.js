@@ -15,7 +15,7 @@ var mongodb = require('mongodb')
     , common = require('../common')
     , server = new mongodb.Server(config.development.db_server, 27017, {})
     , database = new mongodb.Db(config.development.db, server, {w: 1})
-    , collectionName = 'art_owners'
+    , collectionName = 'art_owner'
     , response = undefined;
 
 exports.getAll = function(callback, offset, count) {

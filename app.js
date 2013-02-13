@@ -6,6 +6,7 @@ var express = require('express')
     , mongodb = require('mongodb')
     , global = require('./global')
     , routes = require('./routes')
+    , museum = require('./routes/museum')
     , museumAPI = require('./routes/api/museum')
     , artistAPI = require('./routes/api/artist')
     , artworkAPI = require('./routes/api/artwork')
@@ -41,6 +42,11 @@ var setup = function() {
      * Homepage route
      */
     app.get('/', routes.index);
+
+    /*
+     * Museum Routes
+     */
+    app.get('/museums/:museum_id', museum.info);
 
     /*
      * Museum API Routes

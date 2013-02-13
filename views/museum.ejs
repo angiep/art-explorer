@@ -1,0 +1,60 @@
+<%
+    var official_website = museum.official_website[0];
+%>
+<!DOCTYPE html>
+<html>
+    <head>
+        <title><%= title %></title>
+        <link rel='stylesheet' href='/stylesheets/style.css' />
+    </head>
+    <body>
+        <div id="wrapper">
+            <h1><%= title %></h1>
+            <h2><%= subtitle %></h2>
+
+            <div class="content detail">
+                <div class="details clearfix">
+                    <img src="http://api.freebase.com/api/trans/raw<%= museum.image[0].id %>" />
+                    <div class="information">
+                        <h3>About</h3>
+                        <% if (official_website) { %>
+                            <div>
+                                <strong>Official Website:</strong> <a target="_blank" href="<%= official_website %>"><%= official_website %></a></span>
+                            </div>
+                        <% } %>
+                        <% if (article) { %>
+                            <div class="description">
+                                <%- article %>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+
+                <div class="artworks">
+                    <ul>
+                        <% var artworks = museum.artworks_owned; %>
+                        <% for (var i = 0; i < artworks.length; i++) { %>
+                            <li>
+                                <a href="/artworks/<%= artworks[i].id %>">
+                                    <div><%= artworks[i].id %></div>
+                                </a>
+                            </li>
+                        <% } %>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+        <script type="text/javascript">
+            var data = "";
+            <% if (dump) { %>
+                data = <%- dump %>;
+            <% } %>
+        </script>
+
+        <script data-main="/js/main" src="/js/lib/require.js"></script>
+
+    </body>
+
+</html>

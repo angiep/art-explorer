@@ -4,46 +4,41 @@
  */
 
 var museum = require('../methods/museum')
-    , utils = require('../utils');
+    , utils = require('../utils')
+    , common = require('../common')
+    , ce = require("cloneextend");
 
 /*
- * GET /museums - returns a list of museums
- */
-
-exports.list = function(req, res){
-    var callback = function(json) {
-        utils.sendJson(res, json);
-    };
-
-    if (req.query.name) {
-        museum.searchByName(req.query.name, callback);
-        return;
-    }
-
-    museum.getAll(callback, 0, 25);
-};
-
-
-/*
- * GET /museums/:id - returns a museum
+ * GET /museums/:id - detail page for a museum
  */
 
 exports.info = function(req, res) {
-    var callback = function(json) {
-        utils.sendJson(res, json);
-    };
 
-    museum.getById(req.params.museum_id, callback);
-};
+    // TODO use deferreds here instead of having this ugly mess of callbacks
+    museum.getById(req.params.museum_id, function(museum) {
 
-/*
- * GET /museums/:id/artworks - returns a list of artworks in the museum
- */
+        var data = JSON.stringify(ce.clone(museum));
+        var parsed = JSON.parse(museum);
 
-exports.artworks = function(req, res) {
-    var callback = function(json) {
-        utils.sendJson(res, json);
-    };
+        var options = {
+            host: 'api.freebase.com',
+            port: '80',
+            path: '/api/trans/raw/' + parsed.article[0].id
+        };
 
-    museum.getArtworksForMuseum(req.params.museum_id, callback);
+        common.makeExternalRequest(options, function(article) {
+            
+            var parameters = {
+                title: "Art Explorer",
+                subtitle: parsed.name,
+                museum: parsed,
+                article: article,
+                dump: data
+            };
+
+            res.render("museum", parameters);
+
+        });
+
+    });
 };

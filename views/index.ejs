@@ -21,7 +21,7 @@
                     <ul class="list-wrapper">
 
                         <% for (var i = 0; i < list.length; i++) { %>
-                            <li>
+                            <li style="background-image: url('http://api.freebase.com/api/trans/raw<%= list[i].image[0].id %>')" >
                                 <a href="/museums/<%= list[i]._id %>">
                                     <div><%= list[i].name %></div>
                                 </a>

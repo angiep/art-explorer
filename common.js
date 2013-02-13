@@ -4,6 +4,7 @@
  */
 
 var mongodb = require('mongodb')
+    , http = require('http')
     , ObjectID = mongodb.ObjectID
     , global = require('./global')
     , config = global.config
@@ -84,5 +85,17 @@ exports.searchByName = function(collectionName, database, callback, name) {
             if (typeof callback === 'function') callback(response);
             database.close();
         });
+    });
+};
+
+exports.makeExternalRequest = function(options, callback) {
+    http.get(options, function(res) {
+        res.setEncoding('utf8');
+        res.on('data', function(data) {
+            if (typeof callback === 'function') callback(data);
+        });
+    }).on('error', function(error) {
+        //TODO -- do something here?
+        console.log(error);
     });
 };
