@@ -16,11 +16,11 @@ exports.list = function(req, res){
     };
 
     if (req.query.name) {
-        museum.searchByName(req.query.name, callback);
+        museum.searchByName(req.query.name).then(callback);
         return;
     }
 
-    museum.getAll(callback, 0, 25);
+    museum.getAll(0, 25).then(callback);
 };
 
 
@@ -29,11 +29,9 @@ exports.list = function(req, res){
  */
 
 exports.info = function(req, res) {
-    var callback = function(json) {
+    museum.getById(req.params.museum_id).then(function(json) {
         utils.sendJson(res, json);
-    };
-
-    museum.getById(req.params.museum_id, callback);
+    });
 };
 
 /*
@@ -41,9 +39,7 @@ exports.info = function(req, res) {
  */
 
 exports.artworks = function(req, res) {
-    var callback = function(json) {
+    museum.getArtworksForMuseum(req.params.museum_id).then(function(json) {
         utils.sendJson(res, json);
-    };
-
-    museum.getArtworksForMuseum(req.params.museum_id, callback);
+    });
 };

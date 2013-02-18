@@ -8,7 +8,8 @@ var mongodb = require('mongodb')
     , ObjectID = mongodb.ObjectID
     , global = require('./global')
     , config = global.config
-    , utils = require('./utils');
+    , $ = require('jquery')
+    , utils = require('./utils')
 
 /*
  * Retrieves a list of items based on which collection is passed in
@@ -19,22 +20,27 @@ var mongodb = require('mongodb')
  * count: the number of items to retrieve
  */
 
-exports.getAll = function(collectionName, database, callback, offset, count) {
+exports.getAll = function(collectionName, database, offset, count) {
+
+    var def = new $.Deferred();
     var skip = offset || 0;
     var limit = count || config.limit;
     
     database.open(function(error, client) {
-        if (error) throw error;
+        if (error) return def.reject(error);
 
         var collection = new mongodb.Collection(client, collectionName);
         //db.forum_posts.find({date: {$lt: ..last_post_date..} }).sort({date: -1}).limit(20);
         collection.find({}).skip(skip).limit(limit).toArray(function(error, docs) {
+
             response = JSON.stringify(docs);
-            if (typeof callback === 'function') callback(response);
             database.close();
+
+            def.resolve(response);
         });
     });
 
+    return def;
 };
 
 /*
@@ -44,58 +50,69 @@ exports.getAll = function(collectionName, database, callback, offset, count) {
  * id: the unique ID of the artwork
  */
 
-exports.getById = function(collectionName, database, callback, id) {
+exports.getById = function(collectionName, database, id) {
+
+    var def = new $.Deferred();
 
     if (!utils.isValidId(id)) {
-        if (typeof callback === 'function') callback(utils.formatError(global.errorMessages.incorrectParams));
-        return;
+        return def.reject(utils.formatError(global.errorMessages.incorrectParams));
     }
 
     database.open(function(error, client) {
-        if (error) throw error;
+        if (error) return def.reject(error);
 
         var collection = new mongodb.Collection(client, collectionName);
         collection.findOne({'_id': new ObjectID(id)}, function(error, docs) {
-            if (error) throw error;
+            if (error) return def.reject(error);
 
             response = JSON.stringify(docs);
-            if (typeof callback === 'function') callback(response);
             database.close();
+
+            def.resolve(response);
         });
     });
+
+    return def;
 };
 
-exports.searchByName = function(collectionName, database, callback, name) {
+exports.searchByName = function(collectionName, database, name) {
+
+    var def = new $.Deferred();
 
     if (!name) {
-        if (typeof callback === 'function') callback(utils.formatError(global.errorMessages.incorrectParams));
-        return;
+        return def.reject(utils.formatError(global.errorMessages.incorrectParams));
     }
 
     database.open(function(error, client) {
-        if (error) throw error;
+        if (error) def.reject(error);
 
         var collection = new mongodb.Collection(client, collectionName);
         var query = { name: new RegExp('.*' + name + '.*', 'i') };
         collection.find(query).toArray(function(error, docs) {
-            if (error) throw error;
+            if (error) def.reject(error);
             if (!docs) docs = [];
 
             response = JSON.stringify(docs);
-            if (typeof callback === 'function') callback(response);
             database.close();
+
+            def.resolve(response);
         });
     });
+
+    return def;
 };
 
-exports.makeExternalRequest = function(options, callback) {
+exports.makeExternalRequest = function(options) {
+    var def = new $.Deferred();
+
     http.get(options, function(res) {
         res.setEncoding('utf8');
         res.on('data', function(data) {
-            if (typeof callback === 'function') callback(data);
+            def.resolve(data);
         });
     }).on('error', function(error) {
-        //TODO -- do something here?
-        console.log(error);
+        def.reject(error);
     });
+
+    return def;
 };

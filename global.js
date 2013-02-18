@@ -32,5 +32,6 @@ exports.config = {
 
 exports.errorMessages = {
     emptyResponse: 'No results were found.',
-    incorrectParams: 'Invalid parameters were provided'
+    incorrectParams: 'Invalid parameters were provided',
+    mongoError: 'Error retrieving records'
 };
