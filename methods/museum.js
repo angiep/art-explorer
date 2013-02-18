@@ -37,21 +37,46 @@ exports.getArtworksForMuseum = function(id, callback) {
         return;
     }
  
+    database.close();
     database.open(function(error, client) {
         if (error) throw error;
 
-        var artOwners = new mongodb.Collection(client, collectionName);
+        var ownersColl = new mongodb.Collection(client, collectionName);
+        var relatioships;
         var artworks;
 
-        artOwners.findOne({'_id': new ObjectID(id)}, function(error, owner) {
+        // Find the owner for this ID
+        ownersColl.findOne({_id: new ObjectID(id)}, function(error, owner) {
+
             if (error) throw error;
+
             if (owner) {
-                artworks = new mongodb.Collection(client, 'artwork_owner_relationship');
-                artworks.find({'owner': owner.name}).toArray(function(error, docs) {
-                    response = JSON.stringify(docs);
-                    if (typeof callback === 'function') callback(response);
-                    database.close();
+
+                // Grab all relationships for this owner
+                artworkOwnerColl = new mongodb.Collection(client, 'artwork_owner_relationship');
+                artworkOwnerColl.find({owner: owner.name}, {id: 1, _id: 0}).toArray(function(error, relationships) {
+
+                    
+                    if (error) throw error;
+
+                    // Build a list of artwork relationship IDs to search for
+                    var relIDs = [];
+                    for (var i = 0; i < relationships.length; i++) {
+                        relIDs.push(relationships[i].id);
+                    }
+
+                    // Grab the artwork data for those IDs
+                    artworkColl = new mongodb.Collection(client, 'artwork');
+                    artworkColl.find({ owners: { $elemMatch: { id: { $in: relIDs } } } }).toArray(function(error, artworks) {
+
+                        response = JSON.stringify(artworks);
+                        database.close();
+                        if (typeof callback === 'function') callback(artworks);
+
+                    });
+
                 });
+
             }
         });
     });
