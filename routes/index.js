@@ -22,6 +22,6 @@ exports.index = function(req, res){
         res.render("index", parameters);
     };
 
-    museum.getAll(callback);
+    museum.getAll().then(callback);
 
 };

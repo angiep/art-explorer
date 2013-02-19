@@ -4,6 +4,7 @@
  */
 
 var museum = require('../methods/museum')
+    , $ = require('jquery')
     , utils = require('../utils')
     , common = require('../common')
     , ce = require("cloneextend");
@@ -14,31 +15,44 @@ var museum = require('../methods/museum')
 
 exports.info = function(req, res) {
 
-    // TODO use deferreds here instead of having this ugly mess of callbacks
-    museum.getById(req.params.museum_id, function(museum) {
+    var defMuseum = museum.getById(req.params.museum_id);
+    var defArtworks = museum.getArtworksForMuseum(req.params.museum_id);
+    var defArticle = new $.Deferred();
 
-        var data = JSON.stringify(ce.clone(museum));
-        var parsed = JSON.parse(museum);
+    var parsedMuseum, parsedArtworks;
+
+    defMuseum.then(function(museumInfo) {
+
+        parsedMuseum = JSON.parse(museumInfo);
 
         var options = {
             host: 'api.freebase.com',
             port: '80',
-            path: '/api/trans/raw/' + parsed.article[0].id
+            path: '/api/trans/raw/' + parsedMuseum.article[0].id
         };
 
-        common.makeExternalRequest(options, function(article) {
-            
-            var parameters = {
-                title: "Art Explorer",
-                subtitle: parsed.name,
-                museum: parsed,
-                article: article,
-                dump: data
-            };
-
-            res.render("museum", parameters);
-
+        // We need the article ID from the museum info before we can make this request
+        common.makeExternalRequest(options).then(function(article) {
+            defArticle.resolve(article);
         });
-
     });
+
+
+    // We've fully retrieved everything we need
+    $.when(defMuseum, defArtworks, defArticle).done(function(museumInfo, artworks, article) {
+
+        parsedArtworks = JSON.parse(artworks);
+
+        // Build up our parameters
+        var parameters = {
+            title: 'Art Explorer',
+            subtitle: parsedMuseum.name,
+            museum: parsedMuseum,
+            article: article,
+            artworks: parsedArtworks
+        };
+
+        res.render("museum", parameters);
+    });
+        
 };

@@ -37,8 +37,11 @@
                         <ul>
                             <% for (var i = 0; i < artworks.length; i++) { %>
                                 <li>
-                                    <a href="/artworks/<%= artworks[i].id %>">
-                                        <div><%= artworks[i].id %></div>
+                                    <a href="/artworks/<%= artworks[i]._id %>">
+                                        <div>
+                                            <span><%= artworks[i].name %></span>
+                                            <span><%= artworks[i].artist[0] %></span>
+                                        </div>
                                     </a>
                                 </li>
                             <% } %>
