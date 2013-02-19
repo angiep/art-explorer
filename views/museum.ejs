@@ -2,6 +2,7 @@
     var officialWebsite = museum.official_website[0];
     var pageTitle = locals.title ? title : "Art Explorer Default";
     var pageSubtitle = locals.subtitle ? locals.subtitle : "";
+    var artwork;
 %>
 <!DOCTYPE html>
 <html>
@@ -16,31 +17,35 @@
 
             <div class="content detail">
                 <div class="details clearfix">
-                    <img src="http://api.freebase.com/api/trans/raw<%= museum.image[0].id %>" />
+                    <img src="https://usercontent.googleapis.com/freebase/v1/image/<%= museum.image[0].id %>?maxheight=250&maxwidth=300&mode=fillcropmid" />
                     <div class="information">
-                        <h3>About</h3>
-                        <% if (officialWebsite) { %>
-                            <div>
-                                <strong>Official Website:</strong> <a target="_blank" href="<%= officialWebsite %>"><%= officialWebsite %></a></span>
-                            </div>
-                        <% } %>
                         <% if (locals.article) { %>
                             <div class="description">
                                 <%- article %>
                             </div>
                         <% } %>
+                        <% if (officialWebsite) { %>
+                            <div>
+                                <strong>Official Website:</strong> <a target="_blank" href="<%= officialWebsite %>"><%= officialWebsite %></a></span>
+                            </div>
+                        <% } %>
                     </div>
                 </div>
 
+                <!-- thumbnails http://api.freebase.com/api/trans/image_thumb/wikipedia/images/commons_id/1222112 --> 
                 <% if (locals.artworks) { %>
                     <div class="artworks">
-                        <ul>
-                            <% for (var i = 0; i < artworks.length; i++) { %>
+                        <ul class="list-wrapper">
+                            <% for (var i = 0; i < artworks.length; i++) { 
+                                artwork = artworks[i];
+                                artist = artwork.artist[0] ? artwork.artist[0] : 'Unknown';
+                            %>
                                 <li>
-                                    <a href="/artworks/<%= artworks[i]._id %>">
-                                        <div>
-                                            <span><%= artworks[i].name %></span>
-                                            <span><%= artworks[i].artist[0] %></span>
+                                    <img src="https://usercontent.googleapis.com/freebase/v1/image/<%= artwork.image[0].id %>?maxheight=163&maxwidth=163&mode=fillcropmid" />
+                                    <a href="/artworks/<%= artwork._id %>">
+                                        <div class="info">
+                                            <h3 class="ellipsis"><%= artwork.name %></h3>
+                                            <% if (artist) { %><h4 class="ellipsis"><%= artist %></h4><% } %>
                                         </div>
                                     </a>
                                 </li>

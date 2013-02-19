@@ -45,6 +45,11 @@ strong{font-weight: bold;}
 .spacing{
     margin: 10px 0;
 }
+.ellipsis{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
 .clearfix:after {
 	content: ".";
@@ -62,6 +67,7 @@ html[xmlns] .clearfix {
 * html .clearfix {
 	height: 1%;
 }
+
 
 /*
  * General
@@ -94,6 +100,13 @@ h1 {
 h2 {
     font-size: 24px;
 }
+h3 {
+    font-size: 16px;
+}
+h4 {
+    font-size: 12px;
+    line-height: 12px;
+}
 
 /*
  * Index.ejs
@@ -112,18 +125,35 @@ h2 {
     background-repeat: no-repeat;
     background-position: center;
     float: left;
+    position: relative;
     margin-bottom: 10px;
     margin-right: 10px;
     height: 163px;
     width: 163px;
 }
+.list-wrapper li img {
+    position: absolute;
+    height: 163px;
+    width: 163px;
+}
 .list-wrapper li a {
     display: block;
+    position: relative;
     height: 100%;
     width: 100%;
 }
 .list-wrapper li:nth-child(5n) {
     margin-right: 0;
+}
+.list-wrapper .info {
+    background: rgba(0, 0, 0, 0.6);
+    color: #eee;
+    font-weight: normal;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    position: absolute;
+    padding: 5px 10px 8px;
 }
 .next-arrow {
     float: right;
