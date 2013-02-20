@@ -11,7 +11,7 @@ import subprocess
     Static variables
 """
 url = 'https://www.googleapis.com/freebase/v1sandbox/mqlread?query='
-database = 'art_explorer_test'
+database = 'art_explorer_test2'
 # Built these using http://www.freebase.com/queryeditor
 # Key is the name of the collection
 queries = {
@@ -49,11 +49,10 @@ def mongo_parse(data):
     return divided
 
 """
-    Import the provided json string into MongoDB
+    Import the provided json file into MongoDB
 """
 def mongo_import(collection, filename):
     subprocess.call(['mongoimport', '-d',  database, '-c', collection, filename])
-    return
 
 """
     Write a string to a file..complicated stuff
@@ -61,7 +60,7 @@ def mongo_import(collection, filename):
 def to_file(filename, string):
     f = open(filename, 'w+')
     f.write(string)
-    return
+    f.close()
 
 def fetch_collection_data(collection):
     paging = True
@@ -100,13 +99,10 @@ def fetch_collection_data(collection):
 
         i += 1
 
-    return
-
 def main():
     for key in queries:
         print 'Fetching data for %s' % (key)
         fetch_collection_data(key)
-
-    return
     
-main()
+if __name__ == "__main__":
+    main()
