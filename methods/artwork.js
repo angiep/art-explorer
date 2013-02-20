@@ -21,20 +21,24 @@ var mongodb = require('mongodb')
  * Retrieves a list of artworks
  */
 
-exports.getAll = function(callback, offset, count) {
-    common.getAll(collectionName, database, callback, offset, count);
+exports.getAll = function(offset, count) {
+    return common.getAll(collectionName, offset, count);
 };
 
 /*
  * Retrieves a single artwork by it's ID
  */
 
-exports.getById = function(id, callback) {
-    common.getById(collectionName, database, callback, id);
+exports.getById = function(id) {
+    return common.getById(collectionName, id);
 };
 
-exports.searchByName = function(name, callback) {
-    common.searchByName(collectionName, database, callback, name);
+exports.searchByName = function(name) {
+    return common.searchByName(collectionName, name);
+};
+
+// TODO
+exports.getOwner = function(id) {
 };
 
 

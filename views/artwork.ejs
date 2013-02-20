@@ -1,0 +1,47 @@
+<%
+    var pageTitle = locals.title ? title : "Art Explorer Default";
+    var pageSubtitle = locals.subtitle ? locals.subtitle : "";
+    var artistName = artist ? artist : "";
+%>
+<!DOCTYPE html>
+<html>
+    <head>
+        <title><%= pageTitle %></title>
+        <link rel='stylesheet' href='/stylesheets/style.css' />
+    </head>
+    <body>
+        <div id="wrapper">
+            <h1><%= title %></h1>
+            <h2><%= pageSubtitle %></h2>
+            <h3><%= artistName %></h3>
+
+            <div class="content detail">
+                <div class="details clearfix">
+                    <img src="https://usercontent.googleapis.com/freebase/v1/image/<%= artwork.image[0].id %>?maxwidth=300&mode=fit" />
+                    <div class="information">
+                        <div><strong>Art Genre: </strong><%= artwork.art_genre.join(", ") %></div>
+                        <div><strong>Art Form: </strong><%= artwork.art_form.join(", ") %></div>
+                        <div><strong>Media: </strong><%= artwork.media.join(", ") %></div>
+                        <div><strong>Date Completed: </strong><%= artwork.date_completed %></div>
+                        <div><strong>Period or Movement: </strong><%= artwork.period_or_movement.join(", ") %></div>
+                        <div><strong>Art Subject: </strong><%= artwork.art_subject.join(", ") %></div>
+                        <div><strong>Dimensions: </strong></div>
+                        <div><strong>Location: </strong></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <script type="text/javascript">
+            var data = "";
+            <% if (locals.dump) { %>
+                data = <%- dump %>;
+            <% } %>
+        </script>
+
+        <script data-main="/js/main" src="/js/lib/require.js"></script>
+
+    </body>
+
+</html>

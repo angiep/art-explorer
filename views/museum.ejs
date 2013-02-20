@@ -17,11 +17,11 @@
 
             <div class="content detail">
                 <div class="details clearfix">
-                    <img src="https://usercontent.googleapis.com/freebase/v1/image/<%= museum.image[0].id %>?maxheight=250&maxwidth=300&mode=fillcropmid" />
+                    <img src="<%= museum.imageURL %>" />
                     <div class="information">
-                        <% if (locals.article) { %>
+                        <% if (museum.articleText) { %>
                             <div class="description">
-                                <%- article %>
+                                <%- museum.articleText %>
                             </div>
                         <% } %>
                         <% if (officialWebsite) { %>
@@ -32,7 +32,6 @@
                     </div>
                 </div>
 
-                <!-- thumbnails http://api.freebase.com/api/trans/image_thumb/wikipedia/images/commons_id/1222112 --> 
                 <% if (locals.artworks) { %>
                     <div class="artworks">
                         <ul class="list-wrapper">
@@ -41,7 +40,7 @@
                                 artist = artwork.artist[0] ? artwork.artist[0] : 'Unknown';
                             %>
                                 <li>
-                                    <img src="https://usercontent.googleapis.com/freebase/v1/image/<%= artwork.image[0].id %>?maxheight=163&maxwidth=163&mode=fillcropmid" />
+                                    <img src="<%= artwork.imageURL %>" />
                                     <a href="/artworks/<%= artwork._id %>">
                                         <div class="info">
                                             <h3 class="ellipsis"><%= artwork.name %></h3>

@@ -27,6 +27,17 @@ exports.config = {
 };
 
 /*
+ * Freebase Constants
+ */
+// image thumbnails http://api.freebase.com/api/trans/image_thumb/wikipedia/images/commons_id/1222112
+exports.freebase = {
+    key: 'AIzaSyDWnuOnTsNHDcyCTgk0FOksN0OmPpak6og',
+    images: 'https://usercontent.googleapis.com/freebase/v1/image/',
+    articlesHost: 'api.freebase.com',
+    articlesPath: '/api/trans/blurb/'
+}
+
+/*
  * Error Messages
  */
 

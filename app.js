@@ -8,6 +8,7 @@ var express = require('express')
     , config = global.config
     , routes = require('./routes')
     , museum = require('./routes/museum')
+    , artwork = require('./routes/artwork')
     , museumAPI = require('./routes/api/museum')
     , artistAPI = require('./routes/api/artist')
     , artworkAPI = require('./routes/api/artwork')
@@ -57,6 +58,11 @@ database.open(function(error, client) {
          * Museum Routes
          */
         app.get('/museums/:museum_id', museum.info);
+
+        /*
+         * Artwork Routes
+         */
+        app.get('/artworks/:artwork_id', artwork.info);
 
         /*
          * Museum API Routes
