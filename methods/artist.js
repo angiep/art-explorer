@@ -9,50 +9,55 @@
 
 var mongodb = require('mongodb')
     , ObjectID = mongodb.ObjectID
+    , $ = require('jquery')
     , global = require('../global')
     , config = global.config
     , utils = require('../utils')
     , common = require('../common')
-    , server = new mongodb.Server(config.development.db_server, 27017, {})
-    , database = new mongodb.Db(config.development.db, server, {w: 1})
     , collectionName = 'visual_artist'
     , response = undefined;
 
-exports.getAll = function(callback, offset, count) {
-    common.getAll(collectionName, database, callback, offset, count);
+exports.getAll = function(cursor, count) {
+    return common.getAll(collectionName, cursor, count);
 };
 
-exports.getById = function(id, callback) {
-    common.getById(collectionName, database, callback, id);
+exports.getById = function(id) {
+    return common.getById(collectionName, id);
 };
 
-exports.getArtworksByArtist = function(id, callback) {
+exports.searchByName = function(name) {
+    return common.searchByName(collectionName, name);
+};
+
+exports.getArtworksByArtist = function(id) {
+
+    var def = new $.Deferred();
    
     if (!utils.isValidId(id)) {
-        if (typeof callback === 'function') callback(utils.formatError(global.errorMessages.incorrectParams));
-        return;
+        return def.reject(utils.formatError(global.errorMessages.incorrectParams));
     }
  
-    database.open(function(error, client) {
+    var artists = new mongodb.Collection(global.client, collectionName);
+    var artworks;
+
+    artists.findOne({ _id: new ObjectID(id) }, function(error, artist) {
         if (error) throw error;
+        if (artist) {
 
-        var artists = new mongodb.Collection(client, collectionName);
-        var artworks;
+            var artworkIds = [];
 
-        artists.findOne({'_id': new ObjectID(id)}, function(error, artist) {
-            if (error) throw error;
-            if (artist) {
-                artworks = new mongodb.Collection(client, 'artworks');
-                artworks.find({'artist': artist.name}).toArray(function(error, docs) {
-                    response = JSON.stringify(docs);
-                    if (typeof callback === 'function') callback(response);
-                    database.close();
-                });
+            // Build a list of the artist's artworks and search for their content
+            for (var i = 0; i < artist.artworks.length; i++) {
+                artworkIds.push(artist.artworks[i].id);
             }
-        });
-    });
-};
 
-exports.searchByName = function(name, callback) {
-    common.searchByName(collectionName, database, callback, name);
+            artworks = new mongodb.Collection(global.client, 'artwork');
+            artworks.find({ id: { $in: artworkIds } }).toArray(function(error, docs) {
+                response = JSON.stringify(docs);
+                def.resolve(response);
+            });
+        }
+    });
+
+    return def;
 };

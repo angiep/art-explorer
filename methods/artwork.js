@@ -21,8 +21,8 @@ var mongodb = require('mongodb')
  * Retrieves a list of artworks
  */
 
-exports.getAll = function(offset, count) {
-    return common.getAll(collectionName, offset, count);
+exports.getAll = function(cursor, count) {
+    return common.getAll(collectionName, cursor, count);
 };
 
 /*

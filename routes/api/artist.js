@@ -10,17 +10,21 @@ var artist = require('../../methods/artist')
  * GET /artists - returns a list of artists
  */
 
-exports.list = function(req, res){
+exports.list = function(req, res) {
     var callback = function(json) {
         utils.sendJson(res, json);
     };
 
     if (req.query.name) {
-        artist.searchByName(req.query.name, callback);
+        artist.searchByName(req.query.name).then(callback);
         return;
     }
 
-    artist.getAll(callback, 0, 25);
+    artist.getAll(
+        req.query.cursor ? req.query.cursor : undefined, 
+        req.query.sort ? req.query.sort : undefined,
+        req.query.count ? req.query.count: undefined
+    ).then(callback);
 };
 
 /*
@@ -28,21 +32,16 @@ exports.list = function(req, res){
  */
 
 exports.info = function(req, res) {
-    var callback = function(json) {
+    artist.getById(req.params.artist_id).then(function(json) {
         utils.sendJson(res, json);
-    };
-
-    artist.getById(req.params.artist_id, callback);
+    });
 };
 
 /*
  * GET /artists/:id/artworks - returns a list of artworks made by an artist
  */
-
 exports.artworks = function(req, res) {
-    var callback = function(json) {
+    artist.getArtworksByArtist(req.params.artist_id).then(function(json) {
         utils.sendJson(res, json);
-    };
-
-    artist.getArtworksByArtist(req.params.artist_id, callback);
+    });
 };

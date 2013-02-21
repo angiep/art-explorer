@@ -20,7 +20,11 @@ exports.list = function(req, res){
         return;
     }
 
-    artwork.getAll().then(callback);
+    artwork.getAll(
+        req.query.cursor ? req.query.cursor : undefined, 
+        req.query.sort ? req.query.sort : undefined,
+        req.query.count ? req.query.count: undefined
+    ).then(callback);
 };
 
 
