@@ -1,6 +1,6 @@
-var museum = require("../methods/museum")
-    , utils = require("../utils")
-    , ce = require("cloneextend");
+var museum = require('../methods/museum')
+    , utils = require('../utils')
+    , ce = require('cloneextend');
 
 /*
  * GET home page.
@@ -14,12 +14,12 @@ exports.index = function(req, res){
         var parsed = JSON.parse(list);
 
         var parameters = {
-            title: "Art Explorer",
+            title: 'Art Explorer',
             list: parsed,
             dump: data
         };
 
-        res.render("index", parameters);
+        res.render('index', parameters);
     };
 
     museum.getAll().then(callback);

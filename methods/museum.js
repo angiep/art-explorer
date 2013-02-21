@@ -17,8 +17,8 @@ var mongodb = require('mongodb')
     , collectionName = 'art_owner'
     , response = undefined;
 
-exports.getAll = function(offset, count) {
-    return common.getAll(collectionName, offset, count);
+exports.getAll = function(cursor, count) {
+    return common.getAll(collectionName, cursor, count);
 };
 
 exports.getById = function(id) {

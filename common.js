@@ -10,25 +10,60 @@ var mongodb = require('mongodb')
     , config = global.config
     , $ = require('jquery')
     , utils = require('./utils')
+    , sortOption = require('./sortOption')
 
 /*
  * Retrieves a list of items based on which collection is passed in
  * collectionName: the name of the collection to retrieve items from
- * offset: where to begin paging
  * count: the number of items to retrieve
  */
+exports.getAll = function(collectionName, cursor, sortBy, count) {
 
-exports.getAll = function(collectionName, offset, count) {
+    var def = new $.Deferred()
+      , defCursor = new $.Deferred()
+      , limit = count || config.limit
+      , newCursor
+      , response
+      , collection = new mongodb.Collection(global.client, collectionName)
+      , validSort = sortOption.getValidSort(sortBy)
+      , sortValue = sortOption.SORT_VALUES[validSort];
 
-    var def = new $.Deferred();
-    var skip = offset || 0;
-    var limit = count || config.limit;
-        
-    var collection = new mongodb.Collection(global.client, collectionName);
-    //db.forum_posts.find({date: {$lt: ..last_post_date..} }).sort({date: -1}).limit(20);
-    collection.find({}).skip(skip).limit(limit).toArray(function(error, docs) {
-        response = JSON.stringify(docs);
-        def.resolve(response);
+    // If the sort is something other than date then we need to retrieve the corresponding
+    // field for that search based on the passed in cursor
+    if (!sortOption.isDefaultSort(validSort) && utils.isValidId(cursor)) {
+        collection.findOne({ _id: new ObjectID(cursor) }, function(error, docs) {
+            cursor = docs[sortValue.field];
+            defCursor.resolve(cursor);
+        });
+    }
+    // Using a date sort, no need to grab the other field for the cursor item
+    else {
+        defCursor.resolve(cursor);
+    }
+
+    defCursor.then(function(updatedCursor) {
+        // This will return an empty object if we have no cursor
+        // Otherwise, will build the query for us based on the field
+        var query = sortOption.buildQuery(validSort, sortValue, updatedCursor)
+          , sortQuery = sortOption.buildSortQuery(sortValue);
+
+        // Finally make the Mongo request using our built queries
+        collection.find(query).sort(sortQuery).limit(limit).toArray(function(error, docs) {
+            if (error) def.reject(error);
+
+            if (docs.length > 0) {
+                // Attach a cursor to our response for the next query
+                newCursor = docs[docs.length - 1]._id;
+            }
+            response = {
+                cursor: newCursor,
+                results: docs
+            };
+
+            response = JSON.stringify(response);
+
+            def.resolve(response);
+        });
     });
 
     return def;
@@ -49,7 +84,7 @@ exports.getById = function(collectionName, id) {
     }
 
     var collection = new mongodb.Collection(global.client, collectionName);
-    collection.findOne({'_id': new ObjectID(id)}, function(error, docs) {
+    collection.findOne({ _id: new ObjectID(id) }, function(error, docs) {
         if (error) throw error;
         response = JSON.stringify(docs);
         def.resolve(response);

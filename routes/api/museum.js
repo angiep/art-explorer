@@ -20,7 +20,12 @@ exports.list = function(req, res){
         return;
     }
 
-    museum.getAll(0, 25).then(callback);
+    museum.getAll(
+        req.query.cursor ? req.query.cursor : undefined, 
+        req.query.sort ? req.query.sort : undefined,
+        req.query.count ? req.query.count: undefined
+    )
+    .then(callback);
 };
 
 

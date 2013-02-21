@@ -2,7 +2,7 @@ var assert = require('assert')
   , global = require('../global')
   , freebase = global.freebase
   , utils = require('../utils')
-  , sort = require('../sort')
+  , sort = require('../sortOption')
 
 /*
  * Generate Freebase URL tests
