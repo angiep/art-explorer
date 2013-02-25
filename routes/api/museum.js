@@ -44,7 +44,7 @@ exports.info = function(req, res) {
  */
 
 exports.artworks = function(req, res) {
-    museum.getArtworksForMuseum(req.params.museum_id).then(function(json) {
+    museum.getArtworksForMuseum(req.params.museum_id, true).then(function(json) {
         utils.sendJson(res, json);
     });
 };

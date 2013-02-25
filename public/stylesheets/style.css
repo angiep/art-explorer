@@ -107,6 +107,11 @@ h4 {
     font-size: 12px;
     line-height: 12px;
 }
+.italicized {
+    color: #777;
+    font-style: oblique;
+    line-height: 20px;
+}
 
 /*
  * Index.ejs
@@ -204,11 +209,6 @@ h4 {
 }
 .list-wrapper .info .facts {
     margin-bottom: 15px;
-}
-.list-wrapper .info .fact {
-    color: #777;
-    font-style: oblique;
-    line-height: 20px;
 }
 
 /*

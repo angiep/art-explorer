@@ -55,12 +55,18 @@ exports.info = function(req, res) {
         parameters = { maxheight: 250, maxwidth: 300, mode: 'fillcropmid', key: freebase.key }
         parsedMuseum.imageURL = utils.generateFreebaseURL(freebase.images, parsedMuseum.image[0].id, parameters);
 
+        var data = {
+            artists: parsedArtworks,
+            museum: parsedMuseum
+        }
+
         // Build up our parameters
         var parameters = {
             title: 'Art Explorer',
             subtitle: parsedMuseum.name,
             museum: parsedMuseum,
-            artists: parsedArtworks
+            artists: parsedArtworks,
+            dump: JSON.stringify(data)
         };
 
         res.render('museum', parameters);

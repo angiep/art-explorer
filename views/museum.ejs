@@ -40,7 +40,7 @@
                             <% if (artist.name) { %>
                                 <div class="list-wrapper-title">
                                     <h1><%= artist.name %></h1>
-                                    <% if (artist.associated_periods_or_movements) { %><div><%= artist.associated_periods_or_movements.join(", ") %></div><% } %>
+                                    <% if (artist.associated_periods_or_movements) { %><div class="italicized"><%= artist.associated_periods_or_movements.join(", ") %></div><% } %>
                                 </div>
                             <% } %>
                             <ul class="list-wrapper">
@@ -53,8 +53,8 @@
 
                                       <div class="facts">
                                           <a href="/artworks/<%= artwork._id %>"><h2><%= artwork.name %></h2></a><% if (artwork.date_completed) { %><span class="date">, <%= artwork.date_completed %></span><% } %>
-                                          <div class="fact"><%= artwork.media.join(", ") %></div>
-                                          <div class="fact"><%= artwork.period_or_movement.join(", ") %></div>
+                                          <div class="italicized"><%= artwork.media.join(", ") %></div>
+                                          <div class="italicized"><%= artwork.period_or_movement.join(", ") %></div>
                                           <!--
                                             <div class="fact"><%= artwork.dimensions_meters %></div>
                                           -->

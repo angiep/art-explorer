@@ -32,7 +32,7 @@ exports.searchByName = function(name) {
     return common.searchByName(collectionName, name);
 };
 
-exports.getArtworksForMuseum = function(id) {
+exports.getArtworksForMuseum = function(id, api) {
 
     var def = new $.Deferred();
    
@@ -69,9 +69,10 @@ exports.getArtworksForMuseum = function(id) {
                 artworkColl.find({ owners: { $elemMatch: { id: { $in: relIDs } } } }).sort({ artist: 1 }).toArray(function(error, artworks) {
 
                     // Build imageURLs for each artwork
-                    var parameters = { maxwidth: 400, mode: 'fit', key: freebase.key };
-
-                    artworks = artworkMod.generateImageURLs(artworks, parameters);
+                    if (!api) {
+                        var parameters = { maxwidth: 400, mode: 'fit', key: freebase.key };
+                        artworks = artworkMod.generateImageURLs(artworks, parameters);
+                    }
 
                     // Grab all of the artist information for this list of artworks
                     var defArtists = artworkMod.getArtistsForArtworks(artworks);
@@ -131,6 +132,7 @@ exports.getArtworksForMuseum = function(id) {
                         if (error) throw error;
 
                         response = JSON.stringify(artistList);
+
                         def.resolve(response);
 
                     }); // defArtists
