@@ -26,31 +26,46 @@
                         <% } %>
                         <% if (officialWebsite) { %>
                             <div>
-                                <strong>Official Website:</strong> <a target="_blank" href="<%= officialWebsite %>"><%= officialWebsite %></a></span>
+                                <a target="_blank" href="<%= officialWebsite %>"><%= officialWebsite %></a></span>
                             </div>
                         <% } %>
                     </div>
                 </div>
 
-                <% if (locals.artworks) { %>
-                    <div class="artworks">
+                <% if (locals.artists) { %>
+                    <% for (var i = 0; i < artists.length; i++) {  
+                        artist = artists[i];
+                    %>
+                        <h3 class="list-wrapper-title"><%= artist.name %></h3>
                         <ul class="list-wrapper">
-                            <% for (var i = 0; i < artworks.length; i++) { 
-                                artwork = artworks[i];
-                                artist = artwork.artist[0] ? artwork.artist[0] : 'Unknown';
-                            %>
-                                <li>
-                                    <img src="<%= artwork.imageURL %>" />
-                                    <a href="/artworks/<%= artwork._id %>">
-                                        <div class="info">
-                                            <h3 class="ellipsis"><%= artwork.name %></h3>
-                                            <% if (artist) { %><h4 class="ellipsis"><%= artist %></h4><% } %>
-                                        </div>
-                                    </a>
-                                </li>
-                            <% } %>
+                        <% for (var k = 0; k < artist.artworks.length; k++) {
+                            artwork = artist.artworks[k];
+                        %>
+                          <li class="clearfix">
+                              <img src="<%= artwork.imageURL %>" />
+                              <div class="info">
+
+                                  <div class="facts">
+                                      <a href="/artworks/<%= artwork._id %>"><h2><%= artwork.name %></h2></a><% if (artwork.date_completed) { %><span class="date">, <%= artwork.date_completed %></span><% } %>
+                                      <div class="fact"><%= artwork.media.join(", ") %></div>
+                                      <div class="fact"><%= artwork.period_or_movement.join(", ") %></div>
+                                      <!--
+                                        <div class="fact"><%= artwork.dimensions_meters %></div>
+                                      -->
+                                  </div>
+
+                                  <div class="article">
+                                    Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                                  </div>
+                                  <!--
+                                      <div><strong>Art Subject: </strong><%= artwork.art_subject.join(", ") %></div>
+                                      <div><strong>Dimensions: </strong></div>
+                                  -->
+                              </div>
+                          </li>                        
+                        <% } %>
                         </ul>
-                    </div>
+                    <% } %>
                 <% } %>
             </div>
 

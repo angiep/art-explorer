@@ -52,14 +52,6 @@ exports.info = function(req, res) {
         parsedMuseum.articleText = article;
         var artwork;
 
-        // Parameters to build freebase URL
-        var parameters = { maxheight: 163, maxwidth: 163, mode: 'fillcropmid', key: freebase.key }
-        for (var i = 0; i < parsedArtworks.length; i++) {
-            // check if image actually exists before doing this
-            artwork = parsedArtworks[i];
-            artwork.imageURL = utils.generateFreebaseURL(freebase.images, artwork.image[0].id, parameters);
-        }
-
         parameters = { maxheight: 250, maxwidth: 300, mode: 'fillcropmid', key: freebase.key }
         parsedMuseum.imageURL = utils.generateFreebaseURL(freebase.images, parsedMuseum.image[0].id, parameters);
 
@@ -68,7 +60,7 @@ exports.info = function(req, res) {
             title: 'Art Explorer',
             subtitle: parsedMuseum.name,
             museum: parsedMuseum,
-            artworks: parsedArtworks
+            artists: parsedArtworks
         };
 
         res.render('museum', parameters);

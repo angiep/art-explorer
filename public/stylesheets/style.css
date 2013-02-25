@@ -76,9 +76,9 @@ html {
     height: 100%;
 }
 body {
-    color: #555;
+    color: #666;
     font-size: 14px;
-    font-family: pill-gothic-600mg-1, pill-gothic-600mg-2, sans-serif;
+    font-family: 'Georgia', serif;
     height: 100%;
     margin: 0;
     padding: 0;
@@ -89,19 +89,20 @@ body {
     min-height: 100%;
     margin: 0 auto;
     padding: 20px;
-    width: 858px;
-    border-left: 1px solid #ddd;
-    border-right: 1px solid #ddd;
+    width: 758px;
 }
 h1 {
     font-size: 30px;
     font-weight: bold;
+    line-height: 30px;
 }
 h2 {
     font-size: 24px;
+    line-height: 24px;
 }
 h3 {
     font-size: 16px;
+    line-height: 16px;
 }
 h4 {
     font-size: 12px;
@@ -119,33 +120,27 @@ h4 {
     padding: 10px;
     width: 100%;
 }
-.list-wrapper li {
+.grid-list-wrapper li {
     background-color: #f5f5f5;
-    background-size: 100%;
-    background-repeat: no-repeat;
-    background-position: center;
-    float: left;
     position: relative;
-    margin-bottom: 10px;
-    margin-right: 10px;
-    height: 163px;
-    width: 163px;
+    float: left;
+    margin-bottom: 30px;
+    width: 400px;
 }
-.list-wrapper li img {
-    position: absolute;
-    height: 163px;
-    width: 163px;
+.grid-list-wrapper li img {
+    width: 400px;
 }
-.list-wrapper li a {
+.grid-list-wrapper li a {
     display: block;
+    float: left;
     position: relative;
     height: 100%;
     width: 100%;
 }
-.list-wrapper li:nth-child(5n) {
+.grid-list-wrapper li:nth-child(5n) {
     margin-right: 0;
 }
-.list-wrapper .info {
+.grid-list-wrapper .info {
     background: rgba(0, 0, 0, 0.6);
     color: #eee;
     font-weight: normal;
@@ -162,21 +157,66 @@ h4 {
     float: left;
 }
 
+.list-wrapper-title {
+    padding: 10px;
+    background-color: #eee;
+    margin-bottom: 15px;
+}
+.list-wrapper li {
+    margin-bottom: 40px;
+}
+.list-wrapper li img {
+    float: left;
+    margin-right: 30px;
+    width: 400px;
+}
+.list-wrapper .info {
+    float: left;
+    padding-top: 10px;
+    width: 328px;
+}
+.list-wrapper .info h2 {
+    display: inline;
+    font-size: 20px;
+    font-style: oblique;
+    line-height: 20px;
+    margin-bottom: 15px;
+}
+.list-wrapper .info a {
+    color: #666;
+}
+.list-wrapper .info .date {
+    font-family: sans-serif;
+    font-size: 18px;
+    line-height: 20px;
+}
+.list-wrapper .info .facts {
+    margin-bottom: 15px;
+}
+.list-wrapper .info .fact {
+    color: #777;
+    font-style: oblique;
+    line-height: 20px;
+}
+
 /*
  * Detail Pages museum.ejs, artwork.ejs
  */
-.detail img {
+.detail .details img {
     float: left;
     margin-right: 15px;
     width: 300px;
 }
 .detail .information {
     float: left;
-    width: 500px;
+    width: 415px;
 }
 .detail .details {
     background-color: #eee;
     padding: 10px;
     margin-bottom: 15px;
     margin-top: 10px;
+}
+.detail .description {
+    margin-bottom: 15px;
 }
