@@ -1,1 +1,4 @@
 node_modules/
+tools/json/
+tools/freebase_key
+dump/

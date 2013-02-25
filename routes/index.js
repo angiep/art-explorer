@@ -15,7 +15,7 @@ exports.index = function(req, res){
 
         var parameters = {
             title: 'Art Explorer',
-            list: parsed,
+            list: parsed.results,
             dump: data
         };
 

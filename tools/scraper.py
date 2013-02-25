@@ -7,11 +7,14 @@ import json
 import re
 import subprocess
 
+# TODO: add command line options to add filenames
+
 """
     Static variables
 """
-url = 'https://www.googleapis.com/freebase/v1sandbox/mqlread?query='
+url = 'https://www.googleapis.com/freebase/v1/mqlread?key='
 database = 'art_explorer_test2'
+
 # Built these using http://www.freebase.com/queryeditor
 # Key is the name of the collection
 queries = {
@@ -62,6 +65,16 @@ def to_file(filename, string):
     f.write(string)
     f.close()
 
+"""
+    Read a string from a file and chomp it (removes all new lines and white space)
+"""
+def from_file(filename):
+    f = open(filename, 'r')
+    key = f.readline()
+    f.close()
+
+    return key.rstrip()
+
 def fetch_collection_data(collection):
     paging = True
     cursor = ""
@@ -100,6 +113,12 @@ def fetch_collection_data(collection):
         i += 1
 
 def main():
+    global url
+
+    # Fetching api key from file
+    api_key = from_file('./freebase_key')
+    url +=  api_key + '&query='
+
     for key in queries:
         print 'Fetching data for %s' % (key)
         fetch_collection_data(key)
