@@ -89,7 +89,6 @@ body {
     min-height: 100%;
     margin: 0 auto;
     padding: 20px;
-    width: 758px;
 }
 h1 {
     font-size: 30px;
@@ -157,10 +156,21 @@ h4 {
     float: left;
 }
 
+.artist-section {
+    border-bottom: 1px solid #eee;
+    margin-bottom: 40px;
+    position: relative;
+}
 .list-wrapper-title {
-    padding: 10px;
-    background-color: #eee;
-    margin-bottom: 15px;
+    font-weight: normal;
+    font-size: 28px;
+    left: 0;
+    top: 0;
+    width: 285px;
+    position: absolute;
+}
+.list-wrapper {
+    margin-left: 300px;
 }
 .list-wrapper li {
     margin-bottom: 40px;
@@ -214,7 +224,7 @@ h4 {
 .detail .details {
     background-color: #eee;
     padding: 10px;
-    margin-bottom: 15px;
+    margin-bottom: 40px;
     margin-top: 10px;
 }
 .detail .description {
