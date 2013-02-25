@@ -37,7 +37,12 @@
                         artist = artists[i];
                     %>
                         <div class="artist-section">
-                            <h1 class="list-wrapper-title"><%= artist.name %></h1>
+                            <% if (artist.name) { %>
+                                <div class="list-wrapper-title">
+                                    <h1><%= artist.name %></h1>
+                                    <% if (artist.associated_periods_or_movements) { %><div><%= artist.associated_periods_or_movements.join(", ") %></div><% } %>
+                                </div>
+                            <% } %>
                             <ul class="list-wrapper">
                             <% for (var k = 0; k < artist.artworks.length; k++) {
                                 artwork = artist.artworks[k];

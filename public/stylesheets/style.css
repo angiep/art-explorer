@@ -162,12 +162,14 @@ h4 {
     position: relative;
 }
 .list-wrapper-title {
-    font-weight: normal;
-    font-size: 28px;
     left: 0;
     top: 0;
     width: 285px;
     position: absolute;
+}
+.list-wrapper-title h1 {
+    font-weight: normal;
+    font-size: 28px;
 }
 .list-wrapper {
     margin-left: 300px;

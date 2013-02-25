@@ -16,6 +16,8 @@ var mongodb = require('mongodb')
     , utils = require('../utils')
     , common = require('../common')
     , collectionName = 'art_owner'
+    , artworkMod = require('./artwork')
+    , artistMod = require('./artist')
     , response = undefined;
 
 exports.getAll = function(cursor, count) {
@@ -40,7 +42,8 @@ exports.getArtworksForMuseum = function(id) {
 
     var ownersColl = new mongodb.Collection(global.client, collectionName)
       , relationships
-      , artworks;
+      , artworks
+      , i;
 
     // Find the owner for this ID
     ownersColl.findOne({_id: new ObjectID(id)}, function(error, owner) {
@@ -57,75 +60,84 @@ exports.getArtworksForMuseum = function(id) {
 
                 // Build a list of artwork relationship IDs to search for
                 var relIDs = [];
-                for (var i = 0; i < relationships.length; i++) {
+                for (i = 0; i < relationships.length; i++) {
                     relIDs.push(relationships[i].id);
                 }
 
                 // Grab the artwork data for those IDs
                 artworkColl = new mongodb.Collection(global.client, 'artwork');
-                artworkColl.find({ owners: { $elemMatch: { id: { $in: relIDs } } } }).sort({ artist: -1 }).toArray(function(error, artworks) {
+                artworkColl.find({ owners: { $elemMatch: { id: { $in: relIDs } } } }).sort({ artist: 1 }).toArray(function(error, artworks) {
 
-                    // Generate imageURL for all artworks
-                    var parameters = { maxwidth: 400, mode: 'fit', key: freebase.key }
-                    for (var j = 0; j < artworks.length; j++) {
-                        // check if image actually exists before doing this
-                        artwork = artworks[j];
-                        artwork.imageURL = utils.generateFreebaseURL(freebase.images, artwork.image[0].id, parameters);
-                    }
+                    // Build imageURLs for each artwork
+                    var parameters = { maxwidth: 400, mode: 'fit', key: freebase.key };
 
-                    /*
-                     * Manipulate collection to be grouped by artist
-                     * Example:
-                     * [
-                     *  {
-                     *      name: 'Leonardo da Vinci',
-                     *      artworks: []
-                     *  },
-                     *  {
-                     *      name: 'Andy Warhol',
-                     *      artworks: []
-                     *  }
-                     * ]
-                     *
-                     */
+                    artworks = artworkMod.generateImageURLs(artworks, parameters);
 
-                    var artistList = [] // The final list to be returned
-                      , artwork         // The artwork currently being looked at in the loop
-                      , artist          // The artist currently being looked at in the loop
-                      , currentArtist   // The current artist, changes when we reach a new artist in the loop
-                      , artistObject;   // The object including {name: "", artworks: []}
+                    // Grab all of the artist information for this list of artworks
+                    var defArtists = artworkMod.getArtistsForArtworks(artworks);
 
-                    for (var k = 0; k < artworks.length; k++) {
-                        artwork = artworks[k];
-                        artist = artwork.artist[0];
+                    defArtists.then(function(artists) {
 
-                        // Viewing the same artist, push the artwork to that artist's lists
-                        if (artist === currentArtist) {
-                            artistObject.artworks.push(artwork);
+                        var parsedArtists = JSON.parse(artists);
+
+                        /*
+                         * Manipulate collection to be grouped by artist
+                         * Example:
+                         * [
+                         *  {
+                         *      name: 'Leonardo da Vinci',
+                         *      artworks: []
+                         *  },
+                         *  {
+                         *      name: 'Andy Warhol',
+                         *      artworks: []
+                         *  }
+                         * ]
+                         *
+                         */
+
+                        var artistList = [] // The final list to be returned
+                          , artwork         // The artwork currently being looked at in the loop
+                          , artist          // The artist currently being looked at in the loop
+                          , retrievedArtist // The retrieved artist from the list of artists
+                          , currentArtist   // The current artist, changes when we reach a new artist in the loop
+                          , artistObject;   // The object including {name: "", artworks: []}
+
+                        for (i = 0; i < artworks.length; i++) {
+                            artwork = artworks[i];
+                            artist = artwork.artist[0];
+
+                            // Viewing the same artist, push the artwork to that artist's lists
+                            if (artist && artist === currentArtist) {
+                                artistObject.artworks.push(artwork);
+                            }
+                            // Viewing a new artist, empty out the previous list and start a list for the new artist
+                            else {
+
+                                if (artistObject) {
+                                    artistList.push(artistObject);
+                                }
+
+                                currentArtist = artist;
+                                retrievedArtist = artistMod.findArtist(parsedArtists, currentArtist);
+
+                                artistObject = retrievedArtist ? retrievedArtist : { name: currentArtist };
+                                artistObject.artworks = [];
+                                artistObject.artworks.push(artwork);
+                            }
+
                         }
-                        // Viewing a new artist, empty out the previous list and start a list for the new artist
-                        else {
 
-                            if (artistObject) artistList.push(artistObject);
+                        if (error) throw error;
 
-                            artistObject = {};
-                            artistObject.artworks = [];
-                            currentArtist = artist;
+                        response = JSON.stringify(artistList);
+                        def.resolve(response);
 
-                            artistObject.name = currentArtist;
-                            artistObject.artworks.push(artwork);
-                        }
+                    }); // defArtists
+                    
+                }); // artworkColl
 
-                    }
-
-                    if (error) throw error;
-
-                    response = JSON.stringify(artistList);
-                    def.resolve(response);
-
-                });
-
-            });
+            }); // artOwnerColl
 
         }
 

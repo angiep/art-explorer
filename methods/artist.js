@@ -61,3 +61,23 @@ exports.getArtworksByArtist = function(id) {
 
     return def;
 };
+
+/*
+ * Find an individual artist within a list of artists
+ */
+exports.findArtist = function(artists, name) {
+
+    if (!name) return undefined;
+
+    var artist;
+
+    for (var i = 0; i < artists.length; i++) {
+        artist = artists[i];
+        if (artist.name === name) {
+            return artist;
+        }
+    }
+
+    // Artist information wasn't found
+    return undefined;
+};

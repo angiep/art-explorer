@@ -11,6 +11,8 @@ var mongodb = require('mongodb')
     , ObjectID = mongodb.ObjectID
     , global = require('../global')
     , config = global.config
+    , freebase = global.freebase
+    , utils = require('../utils')
     , common = require('../common')
     , server = new mongodb.Server(config.development.db_server, 27017, {})
     , database = new mongodb.Db(config.development.db, server, {w: 1})
@@ -37,8 +39,31 @@ exports.searchByName = function(name) {
     return common.searchByName(collectionName, name);
 };
 
-// TODO
-exports.getOwner = function(id) {
+exports.generateImageURLs = function(artworks, parameters) {
+
+    var artwork;
+
+    for (var i = 0; i < artworks.length; i++) {
+        artwork = artworks[i];
+        artwork.imageURL = utils.generateFreebaseURL(freebase.images, artwork.image[0].id, parameters);
+    }
+
+    return artworks;
+};
+
+exports.getArtistsForArtworks = function(artworks) {
+
+    var artwork
+      , visualArtist
+      , artistIDs = [];
+
+    for (var i = 0; i < artworks.length; i++) {
+        artwork = artworks[i];
+        visualArtist = artwork.artist[0];
+        if (visualArtist && !(artistIDs.indexOf(visualArtist) > -1)) artistIDs.push(visualArtist);
+    }
+
+    return common.getByIds('visual_artist', artistIDs, 'name', 1);
 };
 
 

@@ -115,6 +115,36 @@ exports.searchByName = function(collectionName, name) {
     return def;
 };
 
+/*
+ * Retrieves a list of items from a collection based on the IDs passed in
+ * collectionName: the name of the collection to retrieve items from
+ * ids: the unique IDs to retrieve
+ * field: the name of the field for the ID
+ */
+exports.getByIds = function(collectionName, ids, field, sortOrder) {
+
+    var def = new $.Deferred();
+
+    var collection = new mongodb.Collection(global.client, collectionName);
+
+    var query = {};
+    query[field] = { $in: ids };
+
+    var sortQuery = {};
+    sortQuery[field] = sortOrder;
+
+    collection.find(query).sort(sortQuery).toArray(function(error, docs) {
+        if (error) def.reject(error);
+        if (!docs) docs = [];
+
+        response = JSON.stringify(docs);
+        def.resolve(response);
+    });
+
+    return def;
+};
+
+
 exports.makeExternalRequest = function(options) {
     var def = new $.Deferred();
 
