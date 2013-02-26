@@ -22,13 +22,35 @@ exports.index = function(req, res){
     };
 
     var categories = [];
+    var coordinates = { latitude: 40.7275169, longitude: -74.0057193 };
 
     var defPopular = museum.getMuseumsByCategory('popular');
     var defModern = museum.getMuseumsByCategory('contemporary');
-    
-    $.when(defPopular, defModern).then(function(popCat, contCat) {
-        categories.push(popCat);
-        categories.push(contCat);
+
+    // Perform a nearby search if we have coordinates
+    if (coordinates) {
+        var defNearby = new $.Deferred(); // This will not complete until we've grabbed both the nearby category and nearby museums
+        var defNearbyMuseums = museum.getNearbyMuseums(coordinates, 100);
+        var defNearbyCat = museum.getCategory('nearby');
+
+        $.when(defNearbyMuseums, defNearbyCat).then(function(nearbyMuseums, nearbyCat) {
+                var response = {
+                    category: nearbyCat,
+                    results: nearbyMuseums
+                };
+                defNearby.resolve(response);
+        });
+    }
+
+    $.when(defPopular, defModern, defNearby).then(function(popResponse, contResponse, nearbyResponse) {
+
+        nearbyResponse.results = museum.generateImageURLs(nearbyResponse.results, { maxheight : 200, maxwidth: 200, mode: 'fillcropmid' });
+        popResponse.results = museum.generateImageURLs(popResponse.results, { maxheight : 200, maxwidth: 200, mode: 'fillcropmid' });
+        contResponse.results = museum.generateImageURLs(contResponse.results, { maxheight : 200, maxwidth: 200, mode: 'fillcropmid' });
+
+        categories.push(nearbyResponse);
+        categories.push(popResponse);
+        categories.push(contResponse);
 
         callback(categories);
     });

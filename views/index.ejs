@@ -27,7 +27,7 @@
                             <% for (k = 0; k < list.length; k++) { %>
                                 <li>
                                     <a href="/museums/<%= list[k]._id %>">
-                                        <img src="https://usercontent.googleapis.com/freebase/v1/image/<%= list[k].image[0].id %>?maxheight=163&maxwidth=163&mode=fillcropmid" />
+                                        <img src="<%= list[k].imageURL %>" />
                                         <div class="info">
                                             <h3><%= list[k].name %></h3>
                                             <% if (list[k].location && list[k].location.locality) { %>

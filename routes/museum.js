@@ -32,7 +32,6 @@ exports.info = function(req, res) {
             museum.updateMuseum(parsedMuseum._id, { location: geo });
         });
 
-
         // TODO
         // Need to sanitize the article because not sanitizing in the EJS file like I thought
         // Check to see if the article exists first

@@ -41,14 +41,22 @@ exports.searchByName = function(name) {
     return common.searchByName(collectionName, name);
 };
 
-exports.getMuseumsByCategory = function(categoryID) {
+exports.getCategory = function(categoryID) {
     var def = new $.Deferred();
-    // TODO: don't hardcode collection names, add these as a global variable
     var categoryColl = new mongodb.Collection(global.client, 'category');
 
     categoryColl.findOne({id: categoryID}, function(error, category) {
         if (error) throw error;
+        def.resolve(category);
+    });
 
+    return def;
+};
+
+exports.getMuseumsByCategory = function(categoryID) {
+    var def = new $.Deferred();
+
+    exports.getCategory(categoryID).then(function(category) {
         exports.getByIds(category.art_owners).then(function(museums) {
 
             var parsedMuseums = JSON.parse(museums);
@@ -185,9 +193,11 @@ exports.getGeolocation = function(museumInfo) {
 
     var def = new $.Deferred
 
+    /*
     if (museumInfo.location && museumInfo.location.formatted_address) {
         return def.resolve(museumInfo.location);
     }
+    */
 
     var parameters = { address: museumInfo.name, sensor: false }
       , path = utils.generateURL(global.googleMaps.geocodePath, undefined, parameters);
@@ -219,11 +229,27 @@ exports.getGeolocation = function(museumInfo) {
             };
         }
 
-        formatted.latitude = geo.geometry.location.lat,
-        formatted.longitude = geo.geometry.location.lng,
+        formatted.coordinates = {
+            longitude: geo.geometry.location.lng,
+            latitude: geo.geometry.location.lat
+        }
+
         formatted.formatted_address = geo.formatted_address,
 
         def.resolve(formatted);
+    });
+
+    return def;
+};
+
+exports.getNearbyMuseums = function(coordinates, within) {
+    var def = new $.Deferred
+      , ownerColl = new mongodb.Collection(global.client, collectionName)
+      , query = { 'location.coordinates': { $within: { $centerSphere: [ [ coordinates.longitude, coordinates.latitude] , within/3963.192] } } };
+
+    ownerColl.find(query).toArray(function(error, museums) {
+        if (error) throw error;
+        def.resolve(museums);
     });
 
     return def;
@@ -236,4 +262,16 @@ exports.updateMuseum = function(id, fields) {
     ownerColl.update({ _id: new ObjectID(id) }, { $set: f }, { safe: true }, function(error, id, statusCode) {
         if (error) throw error;
     });
+};
+
+exports.generateImageURLs = function(museums, parameters) {
+
+    var museum;
+
+    for (var i = 0; i < museums.length; i++) {
+        museum = museums[i];
+        museum.imageURL = utils.generateURL(freebase.images, museum.image[0].id, parameters);
+    }
+
+    return museums;
 };
