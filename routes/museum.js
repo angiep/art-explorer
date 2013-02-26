@@ -30,8 +30,10 @@ exports.info = function(req, res) {
         // TODO
         // Need to sanitize the article because not sanitizing in the EJS file like I thought
         // Check to see if the article exists first
-        var parameters = { maxlength: 800, key: freebase.key }
+        var parameters = { maxlength: 450, key: freebase.key }
         var path = utils.generateFreebaseURL(freebase.articlesPath, parsedMuseum.article[0].id, parameters);
+
+        console.log(path);
 
         var options = {
             host: freebase.articlesHost,
@@ -52,7 +54,7 @@ exports.info = function(req, res) {
         parsedMuseum.articleText = article;
         var artwork;
 
-        parameters = { maxheight: 250, maxwidth: 300, mode: 'fillcropmid', key: freebase.key }
+        parameters = { maxheight: 400, maxwidth: 900, mode: 'fillcropmid', key: freebase.key }
         parsedMuseum.imageURL = utils.generateFreebaseURL(freebase.images, parsedMuseum.image[0].id, parameters);
 
         var data = {

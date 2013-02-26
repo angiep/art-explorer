@@ -1,3 +1,6 @@
+<%
+    var category, list, i, k;
+%>
 <!DOCTYPE html>
 <html>
     <head>
@@ -10,29 +13,29 @@
             <input id="searchbar" class="spacing" type="text" placeholder="Search for a museum"/>
 
             <div class="content">
-                <% if (list) { %>
 
-                    <div class="navigation spacing">
-                        <div class="prev-arrow">Previous</div>
-                        <div class="next-arrow">Next</div>
-                        <div class="clear"></div>
-                    </div>
+                <% for (i = 0; i < categories.length; i++) { 
+                    category = categories[i].category;
+                    list = categories[i].results;
+                %>
+
+                    <h2><%= category.description %></h2>
 
                     <ul class="grid-list-wrapper">
 
-                        <% for (var i = 0; i < list.length; i++) { %>
+                        <% for (k = 0; k < list.length; k++) { %>
                             <li>
-                                <img src="https://usercontent.googleapis.com/freebase/v1/image/<%= list[i].image[0].id %>?maxheight=163&maxwidth=163&mode=fillcropmid" />
-                                <a href="/museums/<%= list[i]._id %>">
+                                <a href="/museums/<%= list[k]._id %>">
+                                    <img src="https://usercontent.googleapis.com/freebase/v1/image/<%= list[k].image[0].id %>?maxheight=163&maxwidth=163&mode=fillcropmid" />
                                     <div class="info">
-                                        <h3 class="ellipsis"><%= list[i].name %></h3>
+                                        <h3><%= list[k].name %></h3>
                                     </div>
                                 </a>
                             </li>
                         <% } %>
 
-                        <div class="clear"></div>
                     </ul>
+
                 <% } %>
             </div>
 
@@ -40,7 +43,7 @@
 
         <script type="text/javascript">
             var data = "";
-            <% if (dump) { %>
+            <% if (locals.dump) { %>
                 data = <%- dump %>;
             <% } %>
         </script>

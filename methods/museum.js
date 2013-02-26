@@ -20,16 +20,49 @@ var mongodb = require('mongodb')
     , artistMod = require('./artist')
     , response = undefined;
 
-exports.getAll = function(cursor, count) {
-    return common.getAll(collectionName, cursor, count);
+exports.getAll = function(cursor, sortBy, count) {
+    return common.getAll(collectionName, cursor, sortBy, count);
 };
 
 exports.getById = function(id) {
     return common.getById(collectionName, id);
 };
 
+/*
+ * Retrieves a list of museums by the provided ids
+ * Ids do not have to be Mongo ObjectIds but can be any field
+ * Include field to specify which field to query by
+ */
+exports.getByIds = function(ids, field) {
+    return common.getByIds(collectionName, ids, field);
+};
+
 exports.searchByName = function(name) {
     return common.searchByName(collectionName, name);
+};
+
+exports.getMuseumsByCategory = function(categoryID) {
+    var def = new $.Deferred();
+    // TODO: don't hardcode collection names, add these as a global variable
+    var categoryColl = new mongodb.Collection(global.client, 'category');
+
+    categoryColl.findOne({id: categoryID}, function(error, category) {
+        if (error) throw error;
+
+        exports.getByIds(category.art_owners).then(function(museums) {
+
+            var parsedMuseums = JSON.parse(museums);
+
+            var response = {
+                category: category,
+                results: parsedMuseums.results
+            };
+
+            def.resolve(response);
+        });
+    });
+
+    return def;
 };
 
 exports.getArtworksForMuseum = function(id, api) {

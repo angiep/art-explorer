@@ -1,4 +1,7 @@
 var museum = require('../methods/museum')
+    , $ = require('jquery')
+    , mongodb = require('mongodb')
+    , ObjectID = mongodb.ObjectID
     , utils = require('../utils')
     , ce = require('cloneextend');
 
@@ -8,20 +11,25 @@ var museum = require('../methods/museum')
 
 exports.index = function(req, res){
 
-    var callback = function(list) {
-
-        var data = JSON.stringify(ce.clone(list));
-        var parsed = JSON.parse(list);
+    var callback = function(response) {
 
         var parameters = {
             title: 'Art Explorer',
-            list: parsed.results,
-            dump: data
+            categories: response
         };
 
         res.render('index', parameters);
     };
 
-    museum.getAll().then(callback);
+    var categories = [];
 
+    var defPopular = museum.getMuseumsByCategory('popular');
+    var defModern = museum.getMuseumsByCategory('contemporary');
+    
+    $.when(defPopular, defModern).then(function(popCat, contCat) {
+        categories.push(popCat);
+        categories.push(contCat);
+
+        callback(categories);
+    });
 };

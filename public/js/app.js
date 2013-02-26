@@ -1,6 +1,6 @@
 var app = app || {};
 
-define(["backbone", "collections/museums"], function(Backbone) {
+define(["backbone", "models/museum", "collections/artists"], function(Backbone) {
     "use strict";
 
     var _this;
@@ -14,9 +14,8 @@ define(["backbone", "collections/museums"], function(Backbone) {
             _this = this;
             _this.data = {};
             if (data) {
-                _this.data = JSON.parse(data);
-                var museums = new app.MuseumList(_this.data);
-                console.log(museums);
+                var museums = new app.Museum(data.museum);
+                var artists = new app.ArtistList(data.artists);
             }
 
             _this.render();

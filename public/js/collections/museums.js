@@ -1,5 +1,3 @@
-var app = app || {};
-
 define(["backbone", "models/museum"], function() {
 	'use strict';
 

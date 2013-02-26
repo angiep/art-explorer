@@ -55,7 +55,7 @@ exports.getAll = function(collectionName, cursor, sortBy, count) {
                 // Attach a cursor to our response for the next query
                 newCursor = docs[docs.length - 1]._id;
             }
-            response = {
+            var response = {
                 cursor: newCursor,
                 results: docs
             };
@@ -86,7 +86,7 @@ exports.getById = function(collectionName, id) {
     var collection = new mongodb.Collection(global.client, collectionName);
     collection.findOne({ _id: new ObjectID(id) }, function(error, docs) {
         if (error) throw error;
-        response = JSON.stringify(docs);
+        var response = JSON.stringify(docs);
         def.resolve(response);
     });
 
@@ -108,7 +108,7 @@ exports.searchByName = function(collectionName, name) {
         if (error) def.reject(error);
         if (!docs) docs = [];
 
-        response = JSON.stringify(docs);
+        var response = JSON.stringify(docs);
         def.resolve(response);
     });
 
@@ -124,20 +124,24 @@ exports.searchByName = function(collectionName, name) {
 exports.getByIds = function(collectionName, ids, field, sortOrder) {
 
     var def = new $.Deferred();
+    var f = field || '_id';
 
     var collection = new mongodb.Collection(global.client, collectionName);
 
     var query = {};
-    query[field] = { $in: ids };
+    query[f] = { $in: ids };
 
     var sortQuery = {};
-    sortQuery[field] = sortOrder;
+    sortQuery[f] = sortOrder;
 
     collection.find(query).sort(sortQuery).toArray(function(error, docs) {
         if (error) def.reject(error);
         if (!docs) docs = [];
 
-        response = JSON.stringify(docs);
+        var response = {};
+        response.results = docs;
+
+        response = JSON.stringify(response);
         def.resolve(response);
     });
 
