@@ -230,6 +230,31 @@ exports.getGeolocation = function(museumInfo) {
     return def;
 };
 
+exports.getArticle = function(museumInfo) {
+
+    var def = new $.Deferred();
+
+    var parameters = { format: 'plain', maxlength: 1000, key: freebase.key }
+    var path = utils.generateURL(freebase.articlesPath, museumInfo.article[0].id, parameters);
+
+    var options = {
+        host: freebase.host,
+        port: '443',
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        path: path
+    };
+
+    // We need the article ID from the museum info before we can make this request
+    common.makeExternalRequest(options).then(function(article) {
+        def.resolve(article.result);
+    });
+
+    return def;
+};
+
 exports.getNearbyMuseums = function(coordinates, within) {
     var def = new $.Deferred
       , ownerColl = new mongodb.Collection(global.client, collectionName)

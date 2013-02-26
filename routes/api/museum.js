@@ -34,7 +34,7 @@ exports.list = function(req, res){
  */
 
 exports.info = function(req, res) {
-    museum.getById(req.params.museum_id, true).then(function(json) {
+    museum.getById(req.params.museum_id).then(function(json) {
         utils.sendJson(res, json);
     });
 };
