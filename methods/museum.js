@@ -20,10 +20,19 @@ var mongodb = require('mongodb')
     , artistMod = require('./artist')
     , response = undefined;
 
+/*
+ * Retrieves x number of museums starting at the cursor provided and sorted by sortBy
+ * cursor: the cursor at which to start the query
+ * sortBy: how the items should be sorted, valid options are found in sortOptions.js
+ * count: the maximum number of items to receive
+ */
 exports.getAll = function(cursor, sortBy, count) {
     return common.getAll(collectionName, cursor, sortBy, count);
 };
 
+/*
+ * Retrieves a single museum based on the id provided
+ */
 exports.getById = function(id) {
     return common.getById(collectionName, id);
 };
@@ -37,10 +46,17 @@ exports.getByIds = function(ids, field) {
     return common.getByIds(collectionName, ids, field);
 };
 
+/*
+ * Attempts to match a museum's name to the name provided
+ */
 exports.searchByName = function(name) {
     return common.searchByName(collectionName, name);
 };
 
+/*
+ * Retrieves a museum category
+ * categoryID: the id of the category, e.g. nearby, popular, contemporary
+ */
 exports.getCategory = function(categoryID) {
     var def = new $.Deferred();
     var categoryColl = new mongodb.Collection(global.client, 'category');
@@ -53,6 +69,9 @@ exports.getCategory = function(categoryID) {
     return def;
 };
 
+/*
+ * Returns a category object alongside a list of museums within that category
+ */
 exports.getMuseumsByCategory = function(categoryID) {
     var def = new $.Deferred();
 
@@ -71,6 +90,22 @@ exports.getMuseumsByCategory = function(categoryID) {
     return def;
 };
 
+
+/*
+ * Returns a list of artworks within a museum organized by artist
+ * For example:
+ * [
+ *  {
+ *      name: 'Leonardo da Vinci',
+ *      artworks: []
+ *  },
+ *  {
+ *      name: 'Andy Warhol',
+ *      artworks: []
+ *  }
+ * ]
+ *
+ */
 exports.getArtworksForMuseum = function(id, api) {
 
     var def = new $.Deferred();
@@ -117,22 +152,6 @@ exports.getArtworksForMuseum = function(id, api) {
                     var defArtists = artworkMod.getArtistsForArtworks(artworks);
 
                     defArtists.then(function(artists) {
-
-                        /*
-                         * Manipulate collection to be grouped by artist
-                         * Example:
-                         * [
-                         *  {
-                         *      name: 'Leonardo da Vinci',
-                         *      artworks: []
-                         *  },
-                         *  {
-                         *      name: 'Andy Warhol',
-                         *      artworks: []
-                         *  }
-                         * ]
-                         *
-                         */
 
                         var artistList = [] // The final list to be returned
                           , artwork         // The artwork currently being looked at in the loop
@@ -183,10 +202,17 @@ exports.getArtworksForMuseum = function(id, api) {
     return def;
 };
 
+
+/*
+ * Use the google maps geocode API to retrieve the geolocation for a museum
+ * The address provided to google maps only contains the name of the museum,
+ * so correct results may vary
+ */
 exports.getGeolocation = function(museumInfo) {
 
     var def = new $.Deferred
     
+    // Generate the google maps API URL
     var parameters = { address: museumInfo.name, sensor: false }
       , path = utils.generateURL(global.googleMaps.geocodePath, undefined, parameters);
 
@@ -202,6 +228,7 @@ exports.getGeolocation = function(museumInfo) {
 
     common.makeExternalRequest(options).then(function(response) {
 
+        // Format the result that they have provided into our own format
         var geo = response.results[0]
           , components = geo.address_components
           , component
@@ -221,7 +248,6 @@ exports.getGeolocation = function(museumInfo) {
             longitude: geo.geometry.location.lng,
             latitude: geo.geometry.location.lat
         }
-
         formatted.formatted_address = geo.formatted_address,
 
         def.resolve(formatted);
@@ -230,12 +256,16 @@ exports.getGeolocation = function(museumInfo) {
     return def;
 };
 
+/*
+ * Retrieve a short snipper about the museum from the freebase text API
+ */
 exports.getArticle = function(museumInfo) {
 
-    var def = new $.Deferred();
+    var def = new $.Deferred()
 
+    // Generate the freebase API URL
     var parameters = { format: 'plain', maxlength: 1000, key: freebase.key }
-    var path = utils.generateURL(freebase.articlesPath, museumInfo.article[0].id, parameters);
+      , path = utils.generateURL(freebase.articlesPath, museumInfo.article[0].id, parameters);
 
     var options = {
         host: freebase.host,
@@ -247,7 +277,6 @@ exports.getArticle = function(museumInfo) {
         path: path
     };
 
-    // We need the article ID from the museum info before we can make this request
     common.makeExternalRequest(options).then(function(article) {
         def.resolve(article.result);
     });
@@ -255,6 +284,11 @@ exports.getArticle = function(museumInfo) {
     return def;
 };
 
+/*
+ * Retrieve a list of museums that are near the coordinates provided
+ * coordinates: an object including a latitude and longitude, e.g. {latitude: 50, longitude: 50}
+ * within:  the radius around the coordinates (in miles) that the museum needs to be within
+ */
 exports.getNearbyMuseums = function(coordinates, within) {
     var def = new $.Deferred
       , ownerColl = new mongodb.Collection(global.client, collectionName)
@@ -268,6 +302,11 @@ exports.getNearbyMuseums = function(coordinates, within) {
     return def;
 };
 
+/*
+ * Update a museum object within the database
+ * id: the ObjectId of the museum
+ * fields: a set of key, value pairs that the museum will be updated with
+ */
 exports.updateMuseum = function(id, fields) {
     var f = fields || {};
     var ownerColl = new mongodb.Collection(global.client, collectionName);
@@ -277,6 +316,9 @@ exports.updateMuseum = function(id, fields) {
     });
 };
 
+/*
+ * Generate image URLs for a list of museums
+ */
 exports.generateImageURLs = function(museums, parameters) {
 
     var museum;
