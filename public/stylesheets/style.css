@@ -124,9 +124,12 @@ h4 {
     padding: 10px;
     width: 100%;
 }
-ul.grid-list-wrapper {
+.grid-list-wrapper {
     margin: 0 auto;
     width: 860px;
+}
+.grid-list-wrapper h2 {
+    margin: 15px 0 15px -4px;
 }
 .grid-list-wrapper li {
     display: inline-block;

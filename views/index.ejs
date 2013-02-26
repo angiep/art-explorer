@@ -19,22 +19,25 @@
                     list = categories[i].results;
                 %>
 
-                    <h2><%= category.description %></h2>
+                    <div class="grid-list-wrapper">
+                        <h2><%= category.description %></h2>
 
-                    <ul class="grid-list-wrapper">
+                        <ul>
 
-                        <% for (k = 0; k < list.length; k++) { %>
-                            <li>
-                                <a href="/museums/<%= list[k]._id %>">
-                                    <img src="https://usercontent.googleapis.com/freebase/v1/image/<%= list[k].image[0].id %>?maxheight=163&maxwidth=163&mode=fillcropmid" />
-                                    <div class="info">
-                                        <h3><%= list[k].name %></h3>
-                                    </div>
-                                </a>
-                            </li>
-                        <% } %>
+                            <% for (k = 0; k < list.length; k++) { %>
+                                <li>
+                                    <a href="/museums/<%= list[k]._id %>">
+                                        <img src="https://usercontent.googleapis.com/freebase/v1/image/<%= list[k].image[0].id %>?maxheight=163&maxwidth=163&mode=fillcropmid" />
+                                        <div class="info">
+                                            <h3><%= list[k].name %></h3>
+                                        </div>
+                                    </a>
+                                </li>
+                            <% } %>
 
-                    </ul>
+                        </ul>
+
+                    </div>
 
                 <% } %>
             </div>
