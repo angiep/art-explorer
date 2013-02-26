@@ -61,8 +61,6 @@ exports.getAll = function(collectionName, cursor, sortBy, count) {
                 results: docs
             };
 
-            response = JSON.stringify(response);
-
             def.resolve(response);
         });
     });
@@ -77,7 +75,7 @@ exports.getAll = function(collectionName, cursor, sortBy, count) {
  * stringify: whether to return a JavaScript object or a JSON string
  */
 
-exports.getById = function(collectionName, id, stringify) {
+exports.getById = function(collectionName, id) {
 
     var def = new $.Deferred();
 
@@ -88,7 +86,7 @@ exports.getById = function(collectionName, id, stringify) {
     var collection = new mongodb.Collection(global.client, collectionName);
     collection.findOne({ _id: new ObjectID(id) }, function(error, docs) {
         if (error) throw error;
-        def.resolve(stringify ? JSON.stringify(docs) : docs);
+        def.resolve(docs);
     });
 
     return def;
@@ -108,9 +106,7 @@ exports.searchByName = function(collectionName, name) {
     collection.find(query).toArray(function(error, docs) {
         if (error) def.reject(error);
         if (!docs) docs = [];
-
-        var response = JSON.stringify(docs);
-        def.resolve(response);
+        def.resolve(docs);
     });
 
     return def;
@@ -142,7 +138,6 @@ exports.getByIds = function(collectionName, ids, field, sortOrder) {
         var response = {};
         response.results = docs;
 
-        response = JSON.stringify(response);
         def.resolve(response);
     });
 

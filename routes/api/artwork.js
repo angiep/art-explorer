@@ -27,13 +27,11 @@ exports.list = function(req, res){
     ).then(callback);
 };
 
-
 /*
  * GET /api/artworks/:id - returns an artwork
  */
-
 exports.info = function(req, res) {
-    artwork.getById(req.params.artwork_id, true).then(function(json) {
+    artwork.getById(req.params.artwork_id).then(function(json) {
         utils.sendJson(res, json);
     });
 };

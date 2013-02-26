@@ -31,8 +31,8 @@ exports.getAll = function(cursor, count) {
  * Retrieves a single artwork by it's ID
  */
 
-exports.getById = function(id, stringify) {
-    return common.getById(collectionName, id, stringify);
+exports.getById = function(id) {
+    return common.getById(collectionName, id);
 };
 
 exports.searchByName = function(name) {

@@ -24,8 +24,8 @@ exports.getAll = function(cursor, sortBy, count) {
     return common.getAll(collectionName, cursor, sortBy, count);
 };
 
-exports.getById = function(id, stringify) {
-    return common.getById(collectionName, id, stringify);
+exports.getById = function(id) {
+    return common.getById(collectionName, id);
 };
 
 /*
@@ -59,11 +59,9 @@ exports.getMuseumsByCategory = function(categoryID) {
     exports.getCategory(categoryID).then(function(category) {
         exports.getByIds(category.art_owners).then(function(museums) {
 
-            var parsedMuseums = JSON.parse(museums);
-
             var response = {
                 category: category,
-                results: parsedMuseums.results
+                results: museums.results
             };
 
             def.resolve(response);
@@ -120,8 +118,6 @@ exports.getArtworksForMuseum = function(id, api) {
 
                     defArtists.then(function(artists) {
 
-                        var parsedArtists = JSON.parse(artists);
-
                         /*
                          * Manipulate collection to be grouped by artist
                          * Example:
@@ -161,7 +157,7 @@ exports.getArtworksForMuseum = function(id, api) {
                                 }
 
                                 currentArtist = artist;
-                                retrievedArtist = artistMod.findArtist(parsedArtists, currentArtist);
+                                retrievedArtist = artistMod.findArtist(artists, currentArtist);
 
                                 artistObject = retrievedArtist ? retrievedArtist : { name: currentArtist };
                                 artistObject.artworks = [];
@@ -172,9 +168,7 @@ exports.getArtworksForMuseum = function(id, api) {
 
                         if (error) throw error;
 
-                        response = JSON.stringify(artistList);
-
-                        def.resolve(response);
+                        def.resolve(artistList);
 
                     }); // defArtists
                     

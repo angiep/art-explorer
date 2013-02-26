@@ -10,6 +10,8 @@ exports.sendJson = function(res, json) {
     // TODO: have this show json with an error if there is no json
     if (!res || !json) return;
 
+    json = JSON.stringify(json);
+
     res.writeHead(200, {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*"

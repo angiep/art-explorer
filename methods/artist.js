@@ -21,8 +21,8 @@ exports.getAll = function(cursor, count) {
     return common.getAll(collectionName, cursor, count);
 };
 
-exports.getById = function(id, stringify) {
-    return common.getById(collectionName, id, stringify);
+exports.getById = function(id) {
+    return common.getById(collectionName, id);
 };
 
 exports.searchByName = function(name) {
