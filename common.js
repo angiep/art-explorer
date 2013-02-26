@@ -4,6 +4,7 @@
  */
 
 var mongodb = require('mongodb')
+    , https = require('https')
     , http = require('http')
     , ObjectID = mongodb.ObjectID
     , global = require('./global')
@@ -152,11 +153,21 @@ exports.getByIds = function(collectionName, ids, field, sortOrder) {
 exports.makeExternalRequest = function(options) {
     var def = new $.Deferred();
 
-    http.get(options, function(res) {
+    var protocol = options.port === '443' ? https : http;
+    protocol.get(options, function(res) {
+
+        var output = '';
         res.setEncoding('utf8');
-        res.on('data', function(data) {
-            def.resolve(data);
+
+        res.on('data', function(chunk) {
+            output += chunk;
         });
+
+        res.on('end', function() {
+            response = JSON.parse(output);
+            def.resolve(response);
+        });
+
     }).on('error', function(error) {
         def.reject(error);
     });

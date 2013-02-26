@@ -21,7 +21,8 @@ queries = {
     'art_owner': '[{"id":null,"name":null,"type":"/visual_art/art_owner","artworks_owned":[{}],"mid":[],"/common/topic/official_website":[],"/common/topic/article":[{"id":null}],"/common/topic/image":[{"id":null}],"limit":500}]',
     'artwork': '[{"id":null,"name":null,"type":"/visual_art/artwork","art_form":[],"art_genre":[],"art_subject":[],"artist":[],"date_begun":null,"date_completed":null,"dimensions_meters":{},"edition_of":[],"editions":[],"locations":[{}],"media":[],"mid":[],"owners":[{}],"period_or_movement":[],"support":[],"/common/topic/official_website":[],"/common/topic/article":[{"id":null}],"/common/topic/image":[{"id":null}],"limit":500}]',
     'visual_artist': '[{"id":null,"name":null,"type":"/visual_art/visual_artist","art_series":[],"artworks":[],"associated_periods_or_movements":[],"mid":[],"/common/topic/article":[{"id":null}],"/common/topic/image":[{"id":null}],"limit":500}]',
-    'artwork_owner_relationship': '[{"id":null,"type":"/visual_art/artwork_owner_relationship","artwork":null,"date_acquired":null,"last_date_owned":null,"method_of_acquisition":null,"mid":[],"name":null,"owner":[],"limit":500}]'
+    'artwork_owner_relationship': '[{"id":null,"type":"/visual_art/artwork_owner_relationship","artwork":null,"date_acquired":null,"last_date_owned":null,"method_of_acquisition":null,"mid":[],"name":null,"owner":[],"limit":500}]',
+    'artwork_location_relationship': '[{"id":null,"artwork": null,"type":"/visual_art/artwork_location_relationship","location":[{"id": null,"name": null}]}]'
 }
 
 """ 

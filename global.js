@@ -33,9 +33,15 @@ exports.config = {
 exports.freebase = {
     key: 'AIzaSyDWnuOnTsNHDcyCTgk0FOksN0OmPpak6og',
     images: 'https://usercontent.googleapis.com/freebase/v1/image/',
-    articlesHost: 'api.freebase.com',
-    articlesPath: '/api/trans/blurb/'
+    host: 'usercontent.googleapis.com',
+    articlesPath: '/freebase/v1/text',
+    locationsPath: '/freebase/v1/location',
 }
+
+exports.googleMaps = {
+    host: 'maps.googleapis.com',
+    geocodePath: '/maps/api/geocode/json'
+};
 
 /*
  * Error Messages

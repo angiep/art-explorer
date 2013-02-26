@@ -45,7 +45,7 @@ exports.generateImageURLs = function(artworks, parameters) {
 
     for (var i = 0; i < artworks.length; i++) {
         artwork = artworks[i];
-        artwork.imageURL = utils.generateFreebaseURL(freebase.images, artwork.image[0].id, parameters);
+        artwork.imageURL = utils.generateURL(freebase.images, artwork.image[0].id, parameters);
     }
 
     return artworks;

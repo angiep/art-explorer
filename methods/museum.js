@@ -180,3 +180,60 @@ exports.getArtworksForMuseum = function(id, api) {
 
     return def;
 };
+
+exports.getGeolocation = function(museumInfo) {
+
+    var def = new $.Deferred
+
+    if (museumInfo.location && museumInfo.location.formatted_address) {
+        return def.resolve(museumInfo.location);
+    }
+
+    var parameters = { address: museumInfo.name, sensor: false }
+      , path = utils.generateURL(global.googleMaps.geocodePath, undefined, parameters);
+
+    var options = {
+        host: global.googleMaps.host,
+        port: '80',
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        path: path
+    };
+
+    common.makeExternalRequest(options).then(function(response) {
+
+        var geo = response.results[0]
+          , components = geo.address_components
+          , component
+          , formatted = {};
+
+        for (var i = 0; i < components.length; i++) {
+            component = components[i];
+            type = component.types[0] || 'other_' + i;
+
+            formatted[type] = {
+                short_name: component.short_name,
+                long_name: component.long_name
+            };
+        }
+
+        formatted.latitude = geo.geometry.location.lat,
+        formatted.longitude = geo.geometry.location.lng,
+        formatted.formatted_address = geo.formatted_address,
+
+        def.resolve(formatted);
+    });
+
+    return def;
+};
+
+exports.updateMuseum = function(id, fields) {
+    var f = fields || {};
+    var ownerColl = new mongodb.Collection(global.client, collectionName);
+
+    ownerColl.update({ _id: new ObjectID(id) }, { $set: f }, { safe: true }, function(error, id, statusCode) {
+        if (error) throw error;
+    });
+};

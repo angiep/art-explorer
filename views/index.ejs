@@ -30,6 +30,9 @@
                                         <img src="https://usercontent.googleapis.com/freebase/v1/image/<%= list[k].image[0].id %>?maxheight=163&maxwidth=163&mode=fillcropmid" />
                                         <div class="info">
                                             <h3><%= list[k].name %></h3>
+                                            <% if (list[k].location && list[k].location.locality) { %>
+                                                <div class="italicized"><%= list[k].location.locality.short_name %>, <%= list[k].location.country.long_name %></div>
+                                            <% } %>
                                         </div>
                                     </a>
                                 </li>

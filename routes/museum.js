@@ -27,23 +27,31 @@ exports.info = function(req, res) {
 
         parsedMuseum = JSON.parse(museumInfo);
 
+        var defGeo = museum.getGeolocation(parsedMuseum);
+        defGeo.then(function(geo) {
+            museum.updateMuseum(parsedMuseum._id, { location: geo });
+        });
+
+
         // TODO
         // Need to sanitize the article because not sanitizing in the EJS file like I thought
         // Check to see if the article exists first
-        var parameters = { maxlength: 450, key: freebase.key }
-        var path = utils.generateFreebaseURL(freebase.articlesPath, parsedMuseum.article[0].id, parameters);
-
-        console.log(path);
+        var parameters = { format: 'plain', maxlength: 1000, key: freebase.key }
+        var path = utils.generateURL(freebase.articlesPath, parsedMuseum.article[0].id, parameters);
 
         var options = {
-            host: freebase.articlesHost,
-            port: '80',
+            host: freebase.host,
+            port: '443',
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
             path: path
         };
 
         // We need the article ID from the museum info before we can make this request
         common.makeExternalRequest(options).then(function(article) {
-            defArticle.resolve(article);
+            defArticle.resolve(article.result);
         });
     });
 
@@ -55,7 +63,7 @@ exports.info = function(req, res) {
         var artwork;
 
         parameters = { maxheight: 400, maxwidth: 900, mode: 'fillcropmid', key: freebase.key }
-        parsedMuseum.imageURL = utils.generateFreebaseURL(freebase.images, parsedMuseum.image[0].id, parameters);
+        parsedMuseum.imageURL = utils.generateURL(freebase.images, parsedMuseum.image[0].id, parameters);
 
         var data = {
             artists: parsedArtworks,

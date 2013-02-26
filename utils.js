@@ -39,20 +39,22 @@ exports.formatError = function(error) {
 };
 
 /*
- * Creates a Freebase URL used for images and API calls
+ * Generates a URL used for images and API calls
  * path: the host of the file or data
  * id: the id of the item to be fetched
  * parameters: a set of key value parameters that are built into a query at the end of the URL, these are optional
  * Example output: https://usercontent.googleapis.com/freebase/v1/image//m/05bl7bb?maxheight=163&maxwidth=163&mode=fillcropmid&key=12345 
  */
-exports.generateFreebaseURL = function(path, id, parameters) {
+exports.generateURL = function(path, id, parameters) {
 
-    var url = path + id;
+    var url = path;
+    if (id) url += id;
+
     var query = [];
 
     if (parameters) {
         Object.keys(parameters).forEach(function(key) {
-            var val = parameters[key];
+            var val = encodeURIComponent(parameters[key]);
             query.push(key + '=' + val);
         });
     }
