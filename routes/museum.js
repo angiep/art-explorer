@@ -17,26 +17,22 @@ var museum = require('../methods/museum')
 
 exports.info = function(req, res) {
 
-    var defMuseum = museum.getById(req.params.museum_id);
-    var defArtworks = museum.getArtworksForMuseum(req.params.museum_id);
-    var defArticle = new $.Deferred();
-
-    var parsedMuseum, parsedArtworks;
+    var defMuseum = museum.getById(req.params.museum_id)
+      , defArtworks = museum.getArtworksForMuseum(req.params.museum_id)
+      , defArticle = new $.Deferred()
+      , parsedArtworks;
 
     defMuseum.then(function(museumInfo) {
 
-        parsedMuseum = JSON.parse(museumInfo);
+        if (!museumInfo.location) {
+            var defGeo = museum.getGeolocation(museumInfo);
+            defGeo.then(function(geo) {
+                museum.updateMuseum(museumInfo._id, { location: geo });
+            });
+        }
 
-        var defGeo = museum.getGeolocation(parsedMuseum);
-        defGeo.then(function(geo) {
-            museum.updateMuseum(parsedMuseum._id, { location: geo });
-        });
-
-        // TODO
-        // Need to sanitize the article because not sanitizing in the EJS file like I thought
-        // Check to see if the article exists first
         var parameters = { format: 'plain', maxlength: 1000, key: freebase.key }
-        var path = utils.generateURL(freebase.articlesPath, parsedMuseum.article[0].id, parameters);
+        var path = utils.generateURL(freebase.articlesPath, museumInfo.article[0].id, parameters);
 
         var options = {
             host: freebase.host,
@@ -58,22 +54,22 @@ exports.info = function(req, res) {
     $.when(defMuseum, defArtworks, defArticle).done(function(museumInfo, artworks, article) {
 
         parsedArtworks = JSON.parse(artworks);
-        parsedMuseum.articleText = article;
+        museumInfo.articleText = article;
         var artwork;
 
         parameters = { maxheight: 400, maxwidth: 900, mode: 'fillcropmid', key: freebase.key }
-        parsedMuseum.imageURL = utils.generateURL(freebase.images, parsedMuseum.image[0].id, parameters);
+        museumInfo.imageURL = utils.generateURL(freebase.images, museumInfo.image[0].id, parameters);
 
         var data = {
             artists: parsedArtworks,
-            museum: parsedMuseum
+            museum: museumInfo
         }
 
         // Build up our parameters
         var parameters = {
             title: 'Art Explorer',
-            subtitle: parsedMuseum.name,
-            museum: parsedMuseum,
+            subtitle: museumInfo.name,
+            museum: museumInfo,
             artists: parsedArtworks,
             dump: JSON.stringify(data)
         };

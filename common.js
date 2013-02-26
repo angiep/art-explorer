@@ -74,9 +74,10 @@ exports.getAll = function(collectionName, cursor, sortBy, count) {
  * Retrieves a single item by it's ID within a collection
  * collectionName: the name of the collection to retrieve items from
  * id: the unique ID of the artwork
+ * stringify: whether to return a JavaScript object or a JSON string
  */
 
-exports.getById = function(collectionName, id) {
+exports.getById = function(collectionName, id, stringify) {
 
     var def = new $.Deferred();
 
@@ -87,8 +88,7 @@ exports.getById = function(collectionName, id) {
     var collection = new mongodb.Collection(global.client, collectionName);
     collection.findOne({ _id: new ObjectID(id) }, function(error, docs) {
         if (error) throw error;
-        var response = JSON.stringify(docs);
-        def.resolve(response);
+        def.resolve(stringify ? JSON.stringify(docs) : docs);
     });
 
     return def;

@@ -32,7 +32,7 @@ exports.list = function(req, res) {
  */
 
 exports.info = function(req, res) {
-    artist.getById(req.params.artist_id).then(function(json) {
+    artist.getById(req.params.artist_id, true).then(function(json) {
         utils.sendJson(res, json);
     });
 };

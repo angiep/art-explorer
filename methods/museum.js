@@ -24,8 +24,8 @@ exports.getAll = function(cursor, sortBy, count) {
     return common.getAll(collectionName, cursor, sortBy, count);
 };
 
-exports.getById = function(id) {
-    return common.getById(collectionName, id);
+exports.getById = function(id, stringify) {
+    return common.getById(collectionName, id, stringify);
 };
 
 /*
@@ -192,13 +192,7 @@ exports.getArtworksForMuseum = function(id, api) {
 exports.getGeolocation = function(museumInfo) {
 
     var def = new $.Deferred
-
-    /*
-    if (museumInfo.location && museumInfo.location.formatted_address) {
-        return def.resolve(museumInfo.location);
-    }
-    */
-
+    
     var parameters = { address: museumInfo.name, sensor: false }
       , path = utils.generateURL(global.googleMaps.geocodePath, undefined, parameters);
 
