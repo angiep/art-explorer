@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8">
+        <title></title>
+    </head>
+    <body>
+
+        <input id="test" type="text" />
+        <input id="test2" type="text" />
+        <script src="./js/typeahead.js"></script>
+        <script>
+            var input = document.getElementById("test");
+            var input2 = document.getElementById("test2");
+
+            var ta = new TypeAhead(input, "hi");
+            var ta2 = new TypeAhead(input2, "hello");
+
+        </script>
+
+    </body>
+</html>
