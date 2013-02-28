@@ -3,17 +3,21 @@
     <head>
         <meta charset="utf-8">
         <title></title>
+        <link rel="stylesheet" href="teststyle.css">
     </head>
     <body>
 
-        <input id="test" type="text" />
-        <input id="test2" type="text" />
+        <div class="typeAhead">
+            <input id="test" type="text" />
+            <input id="test2" type="text" />
+        </div>
+
         <script src="./js/typeahead.js"></script>
         <script>
             var input = document.getElementById("test");
             var input2 = document.getElementById("test2");
 
-            var ta = new TypeAhead(input, "hi");
+            var ta = new TypeAhead(input, {list: ["cat", "dog", "cow", "cattle"]});
             var ta2 = new TypeAhead(input2, "hello");
 
         </script>

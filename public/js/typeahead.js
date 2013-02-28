@@ -10,6 +10,20 @@ function appendAfter(element, sibling) {
     }
 }
 
+function hasClass(el, name) {
+    return el.className.match(new RegExp("(\\s|^)" + name + "(\\s|$)")) === null ? false : true;
+}
+function addClass(el, name) {
+    if (!hasClass(el, name)) { 
+        el.className += (el.className ? ' ' : '') + name; 
+    }
+}
+function removeClass(el, name) {
+   if (hasClass(el, name)) {
+      el.className = el.className.replace(new RegExp('(\\s|^)' + name + '(\\s|$)'),' ').replace(/^\s+|\s+$/g, '');
+   }
+}
+
 /*
  * JavaScript TypeAhead Module
  * Author: Angela Panfil (panfia)
@@ -19,24 +33,62 @@ var TypeAhead = (function() {
 
     if (count === undefined) var count = -1;
 
+    var ACTIVE_CLASS = 'highlight';
+
     // Private functions shared by all instances
-    
     var processKey = function(e) {
         if (!e) return;
 
         var charCode = (typeof e.which === "number") ? e.which : e.keyCode;
-        if (charCode) {
-            return String.fromCharCode(charCode);
+
+        switch(charCode) {
+            case 38:
+                return { action: "up" };
+            case 40:
+                return { action: "down" };
+            default:
+                break;
         }
 
-        return;
+        if (charCode) {
+            return { character: String.fromCharCode(charCode) };
+        }
+
+        return {};
+    };
+
+    var findMatches = function(term, items) {
+
+        if (term === "") return [];
+
+        // Sort alphabetically
+        items.sort();
+
+        var matches = [];
+
+        for (var i = 0; i < items.length; i++) {
+            var re = new RegExp('^' + term + '.*'); 
+
+            if (items[i].match(re)) {
+                matches.push(items[i]);
+            }
+        }
+
+        return matches;
+
     };
 
     var makeRequest = function() {
     };
 
     var generateList = function() {
-        return document.createElement('ul');
+        var ul = document.createElement('ul');
+        var div = document.createElement('div');
+
+        div.className = 'wrapper';
+        div.appendChild(ul);
+
+        return {wrapper: div, dropdown: ul};
     };
 
     /* 
@@ -64,11 +116,31 @@ var TypeAhead = (function() {
 
         // Bind key presses
         var onPress = function(e) {
+            e.preventDefault();
+
+            console.log(e);
             var key = processKey(e);
-            _this.onKeyPress.call(_this, key);
+            if (key.character) {
+                _this.onKeyPress.call(_this, key);
+            }
+            else if (key.action) {
+                // Buggy when doing searches
+                // TODO: try to implement something like this?
+                //actions[key.action]();
+                switch(key.action) {
+                    case "down":
+                        _this.updateIndex();
+                        break;
+                    case "up":
+                        _this.updateIndex(true);
+                        break;
+                    default:
+                        break;
+                }
+            }
         };
 
-        this.input.onkeypress = onPress; 
+        this.input.onkeyup = onPress; 
 
         // Append a hidden unordered list after the input
         this.createDropdown();
@@ -80,7 +152,13 @@ var TypeAhead = (function() {
         constructor: typeAhead,
 
         onKeyPress: function(key) {
-            console.log(key);
+            var matches;
+            // If we're searching from a static list...
+            if (this.options.list) {
+                matches = findMatches(this.getCurrentValue(), this.options.list);
+            }
+
+            this.updateDropdown(matches);
         },
 
         getCurrentValue: function() {
@@ -91,8 +169,7 @@ var TypeAhead = (function() {
             return this.input;
         },
 
-        // Generate HTML string and then append it all afterwards
-        // items: an array of strings
+        // items: an array of strings (text or html)
         addItems: function(items) {
             var html = ''
               , fragment = document.createDocumentFragment()
@@ -111,15 +188,29 @@ var TypeAhead = (function() {
             this.dropdown.appendChild( fragment.cloneNode(true) );
         },
 
-        updateDropdown: function() {
+        updateDropdown: function(items) {
+            // Always clear the dropdown with a new search
             this.clearDropdown();
-            this.addItems(["cat", "dog", "bird"]);
+
+            // No matches returned, hide the dropdown
+            if (items.length === 0) {
+                this.hideDropdown();
+                return;
+            }
+
+            // Matches returned, add the matches to the list
+            // and display the dropdown
+            this.addItems(items);
             this.displayDropdown();
         },
 
         createDropdown: function() {
+            var list = generateList();
+
             // Grab the unordered list
-            this.dropdown = generateList();
+            this.dropdown = list.dropdown;
+
+            this.index = -1;
 
             // Append a unique ID
             this.dropdown.id = 'dropdown' + this.count;
@@ -128,11 +219,15 @@ var TypeAhead = (function() {
             this.hideDropdown();
 
             // Append it after the input
-            appendAfter(this.input, this.dropdown);
+            appendAfter(this.input, list.wrapper);
         },
 
         getDropdown: function() {
             return this.dropdown;
+        },
+
+        getDropdownItems: function() {
+            return this.dropdown.getElementsByTagName('li');
         },
 
         displayDropdown: function() {
@@ -147,6 +242,54 @@ var TypeAhead = (function() {
             this.dropdown.innerHTML = '';
         },
 
+        selectItem: function(index, deselect) {
+            var items = this.getDropdownItems();
+
+            if (items.length > 0 && items[index]) {
+                if (deselect) {
+                    removeClass(item[index], ACTIVE_CLASS);
+                }
+                else {
+                    addClass(items[index], ACTIVE_CLASS);
+                }
+            }
+        },
+
+        deselectItems: function() {
+            var items = this.getDropdownItems();
+            for (var i = 0; i < items.length; i++) {
+                removeClass(items[i], ACTIVE_CLASS);
+            }
+        },
+
+        updateIndex: function(decrement) {
+
+            // Make sure we stay within bounds
+            var length = this.getDropdownItems().length - 1;
+            if (decrement && this.index === 0) return;
+            if (!decrement && this.index === length) return;
+
+            this.deselectItems();
+
+            if (decrement) {
+                this.index--
+            }
+            else {
+                this.index++;
+            }
+
+            this.selectItem(this.index);
+        },
+
+        resetIndex: function() {
+            this.deselectItems();
+            this.index = -1;
+        },
+
+        getIndex: function() {
+            return this.index;
+        },
+        
         getCount: function() {
             return this.count;
         }
