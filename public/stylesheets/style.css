@@ -91,8 +91,7 @@ body {
     padding: 0 20px;
 }
 h1 {
-    font-size: 30px;
-    font-weight: bold;
+    font-size: 38px;
     line-height: 30px;
 }
 h2 {
@@ -116,17 +115,37 @@ h4 {
 /*
  * Index.ejs
  */
+.header {
+    background: #fff;
+    border-bottom: 1px solid #eee;
+    padding: 20px 20px 15px 20px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    min-width 940px;
+    z-index: 20;
+}
+.header h1 {
+    display: inline-block;
+    margin-right: 84px;
+}
+.typeAhead {
+    display: inline-block;
+    position: relative;
+    top: -5px;
+}
+.typeAhead ul {
+    width: 500px;
+}
 #searchbar {
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-sizing: border-box;
     font-size: 16px;
     padding: 10px;
-    width: 100%;
+    width: 478px;
 }
-.grid-list-wrapper {
-    margin: 0 auto;
-    width: 860px;
+.content {
+    margin-top: 100px;
+    margin-left: 300px;
 }
 .grid-list-wrapper h2 {
     margin: 15px 0 15px -4px;
@@ -145,9 +164,6 @@ h4 {
     display: block;
     height: 100%;
     width: 100%;
-}
-.grid-list-wrapper li:nth-child(4n) {
-    margin-right: 0;
 }
 .grid-list-wrapper .info {
     color: #555;
@@ -211,6 +227,10 @@ h4 {
 /*
  * Detail Pages museum.ejs, artwork.ejs
  */
+.detail.content {
+    margin-left: 0;
+    margin-top: 80px;
+}
 .detail .details img {
     float: left;
     margin-right: 15px;

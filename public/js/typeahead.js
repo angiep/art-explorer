@@ -67,7 +67,7 @@ var TypeAhead = (function() {
         var matches = [];
 
         for (var i = 0; i < items.length; i++) {
-            var re = new RegExp('^' + term + '.*'); 
+            var re = new RegExp('^' + term + '.*', 'i'); 
 
             if (items[i].match(re)) {
                 matches.push(items[i]);

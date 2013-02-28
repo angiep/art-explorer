@@ -5,12 +5,17 @@
 <html>
     <head>
         <title><%= title %></title>
+        <link rel='stylesheet' href='/stylesheets/typeahead.css' />
         <link rel='stylesheet' href='/stylesheets/style.css' />
     </head>
     <body>
         <div id="wrapper">
-            <h1><%= title %></h1>
-            <input id="searchbar" class="spacing" type="text" placeholder="Search for a museum"/>
+            <div class="header">
+                <h1><%= title %></h1>
+                <div class="typeAhead">
+                    <input id="searchbar" type="text" placeholder="Search for a museum"/>
+                </div>
+            </div>
 
             <div class="content">
 
@@ -55,6 +60,14 @@
         </script>
 
         <script data-main="/js/main" src="/js/lib/require.js"></script>
+
+        <script src="/js/typeahead.js"></script>
+        <script>
+            var input = document.getElementById("searchbar");
+            var ta = new TypeAhead(input, {list: ["Louvre", "Museum of Modern Art", "Metropolitan Museum of Art"]});
+        </script>
+
+
 
     </body>
 
