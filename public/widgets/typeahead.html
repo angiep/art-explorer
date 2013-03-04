@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8">
+        <title></title>
+        <link rel="stylesheet" href="/stylesheets/typeahead.css">
+    </head>
+    <body>
+
+        <div class="typeAhead">
+            <input id="test" type="text" />
+        </div>
+
+        <script src="/js/typeahead.js"></script>
+        <script>
+            var input = document.getElementById("test");
+            var ta = new TypeAhead(input, {list: ["cat", "dog", "cow", "cattle"]});
+        </script>
+
+    </body>
+</html>
