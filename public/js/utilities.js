@@ -3,12 +3,30 @@
  */
 function forEachIn(object, action) {
     for (var property in object) {
-        console.log(property);
         if (object.hasOwnProperty(property)) {
             action(property, object[property]);
         }
     }
 };
+
+/*
+ * DOM Manipulation Methods
+ */
+function hasClass(el, name) {
+    return el.className.match(new RegExp("(\\s|^)" + name + "(\\s|$)")) === null ? false : true;
+}
+
+function addClass(el, name) {
+    if (!hasClass(el, name)) { 
+        el.className += (el.className ? ' ' : '') + name; 
+    }
+}
+
+function removeClass(el, name) {
+   if (hasClass(el, name)) {
+      el.className = el.className.replace(new RegExp('(\\s|^)' + name + '(\\s|$)'), ' ').replace(/^\s+|\s+$/g, '');
+   }
+}
 
 function appendAfter(el, sibling) {
     if (el.nextSibling) {
@@ -19,7 +37,9 @@ function appendAfter(el, sibling) {
     el.parentNode.appendChild(sibling);
 }
 
-// Make an AJAX request
+/*
+ * AJAX Request
+ */
 function load(url, callback, errorCallback) {
     var xhr;  
 
@@ -76,6 +96,7 @@ function load(url, callback, errorCallback) {
 
 /*
  * Storage Methods
+ * based off of ElementStore, found here: http://amix.dk/blog/post/19504 
  */
 DataStore = {
 
@@ -125,21 +146,3 @@ DataStore = {
         return storeMap[elementId];
     }
 };
-
-/*
- * Class Utility Methods 
- */
-function hasClass(el, name) {
-    return el.className.match(new RegExp("(\\s|^)" + name + "(\\s|$)")) === null ? false : true;
-}
-function addClass(el, name) {
-    if (!hasClass(el, name)) { 
-        el.className += (el.className ? ' ' : '') + name; 
-    }
-}
-function removeClass(el, name) {
-   if (hasClass(el, name)) {
-      el.className = el.className.replace(new RegExp('(\\s|^)' + name + '(\\s|$)'), ' ').replace(/^\s+|\s+$/g, '');
-   }
-}
-

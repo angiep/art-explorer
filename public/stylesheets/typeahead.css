@@ -1,4 +1,4 @@
-.typeAhead input {
+.type-ahead input {
     border: 1px solid #ddd;
     border-top-right-radius: 3px;
     border-top-left-radius: 3px;
@@ -10,10 +10,10 @@
     margin: 0;
     width: 278px;
 }
-.typeAhead .wrapper {
+.type-ahead .wrapper {
     position: relative;
 }
-.typeAhead ul {
+.type-ahead ul {
     background: #fff;
     margin: 0;
     padding: 0;
@@ -21,7 +21,7 @@
     width: 300px;
     z-index: 9999;
 }
-.typeAhead li {
+.type-ahead li {
     border-bottom: 1px solid #ddd;
     border-left: 1px solid #ddd;
     border-right: 1px solid #ddd;
@@ -30,7 +30,7 @@
     list-style-type: none;
     padding: 10px;
 }
-.typeAhead li.highlight {
+.type-ahead li.highlight {
     background-color: #fcfcfc;
     cursor: pointer;
 }

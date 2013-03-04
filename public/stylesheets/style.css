@@ -130,12 +130,12 @@ h4 {
     display: inline-block;
     margin-right: 84px;
 }
-.typeAhead {
+.type-ahead {
     display: inline-block;
     position: relative;
     top: -5px;
 }
-.typeAhead ul {
+.type-ahead ul {
     width: 500px;
 }
 #searchbar {

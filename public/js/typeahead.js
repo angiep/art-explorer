@@ -1,70 +1,96 @@
 /*
  * JavaScript TypeAhead Module
  * Author: Angela Panfil (panfia)
+ * Date: March 3, 2013
+ *
+ * HTML Structure Example:
+ * <div class="type-ahead">
+ *   <input type="text" placeholder="Search" />
+ * </div>
+ *
+ * Options:
+ *     list: an array of strings to check user input against, an alternative to making AJAX requests
+ *     activeClass: the class to be added to a list item when it is selected (through arrows, hovering or clicking), default is 'highlight'
+ *     source: source URL to check user input against, should return a JSON array
+ *     property: if source is returning Objects rather than strings, the property name that should be displayed within the list
+ *     onSelect: a callback function to be called when the user clicks or hits enter on an item, the onSelect method is passed
+ *     the DOM element and the data object corresponding to the item
+ *     onHover: a callback function to be called when the user hovers over an item, the onHover method is passed the DOM element and the data
+ *     object corresponding to the item
+ *
  */
 var TypeAhead = (function() {
     'use strict';
 
-    // uid maintains the number of instances of this widget
-    // Each instance is given it's own unique number (this.uid) based on this uid
-    if (uid === undefined) var uid = -1;
+    var uid = -1                        // Unique identifier for each instance of the widget
+      , ACTIVE_CLASS = 'highlight';     // Class added to the list item when it is hovered or selected;
+                                        // can be updated with this.options.activeClass
 
-    // Static variables shared by all instances
-    var ACTIVE_CLASS = 'highlight';
-    var KEY_ACTIONS = {
-        13: 'enter',
-        38: 'up',
-        40: 'down'
+    /*
+     * A list of key codes and their corresponding action functions
+     */
+    var actionFunctions = {
+        13: function() { this.triggerSelect(this.getDropdownItems()[this.index]); }, // Enter key
+        38: function() { this.updateIndex(true); }, // Up arrow
+        40: function() { this.updateIndex(); }     // Down arrow
     };
 
-    /*
-     * Private functions shared by all instances
-     */
+
+    /* Private Methods */
 
     /*
-     * Returns the action string corresponding to the key that was pressed
-     * Returns undefined if the key pressed does not correspond to an action
+     * getActionFromKey
+     * e: a keyup event
+     * If the key is an action key (such as up arrow or enter), the function corresponding to this key is returned.
+     * Returns undefined if the key pressed does not correspond to an action.
      */
     var getActionFromKey = function(e) {
         if (!e) return;
         var charCode = (typeof e.which === "number") ? e.which : e.keyCode;
 
         // Determine if this character is an action character
-        var action = KEY_ACTIONS[charCode.toString()];
+        var action = actionFunctions[charCode.toString()];
         if (action) return action;
 
         return;
     };
 
     /*
+     * findMatches
+     * term: a string to be matched against
+     * items: the list of items to filter by this search term
      * Checks whether each string in a list contains the search term
      * "Contains" means that the search term must be at the beginning of the string
      * or at the beginning of a word in the string (so after a space)
-     * term: a string to be matched against
-     * items: the list of items to filter
      */
     var findMatches = function(term, items) {
-
         if (term === "") return [];
 
-        // Sort alphabetically
-        items.sort();
+        var matches = []
+          , re;
 
-        var matches = [];
+        items.sort(); // Sort alphabetically
 
         // TODO: maybe provide a filter method for Array instead? not supported before IE9
         for (var i = 0; i < items.length; i++) {
-            var re = new RegExp('\\b' + term, 'gi'); 
-
+            re = new RegExp('\\b' + term, 'gi'); 
             if (items[i].match(re)) {
                 matches.push(items[i]);
             }
         }
 
         return matches;
-
     };
 
+    /*
+     * makeRequest
+     * url: the source url for the AJAX request
+     * term: the search term to be added as a query to the source url
+     * callback: a function to be called if the AJAX request is successful
+     * _this: optional this used by the callback function
+     * Builds a URL with the search term and makes an AJAX request.
+     * Sets up success and fail functions for the AJAX request.
+     */
     var makeRequest = function(url, term, callback, _this) {
 
         var that = _this || this
@@ -73,17 +99,18 @@ var TypeAhead = (function() {
         if (term === "") return callback.call(that, []);
 
         var success = function(xhr) {
+            // JSON parsing can throw lots of fun errors, so try it and throw an error otherwise
             try {
                 response = JSON.parse(xhr.responseText);
             }
             catch (e) {
                 console.error(e);
                 console.error('Error: Failed to parse response text into JSON');
+                return;
             }
 
-            if (response) {
-                callback.call(that, response);
-            }
+            // Successfully retrieved the response and parsed it into JSON
+            callback.call(that, response);
         };
 
         var fail = function(xhr) {
@@ -92,9 +119,18 @@ var TypeAhead = (function() {
 
         url += '?query=' + encodeURIComponent(term);
         
+        // Make the AJAX request
         load(url, success, fail);
     };
 
+    /*
+     * generateList
+     * Create the initial list display and append it after the input element.
+     * HTML Structure:
+     * <div class='wrapper'>
+     *  <ul></ul>
+     * </div>
+     */
     var generateList = function() {
         var ul = document.createElement('ul');
         var div = document.createElement('div');
@@ -104,59 +140,38 @@ var TypeAhead = (function() {
 
         return {wrapper: div, dropdown: ul};
     };
-
-    var actionFunctions = {
-        'up': function() {
-            this.updateIndex(true);
-        },
-        'down': function() {
-            this.updateIndex();
-        },
-        'enter': function() {
-            this.triggerSelect(this.getDropdownItems()[this.index]);
-        }
-    };
-
+    
     /* 
      * Constructor
      *
      * input: an input DOM element <input type="text" />
-     * options: {
-     *     list: an array of strings to check user input against, an alternative to making AJAX requests
-     *     activeClass: the class to be added to a list item when it is selected (through arrows, hovering or clicking), default is 'highlight'
-     *     source: source URL to check user input against, should return a JSON array
-     *     property: if source is returning Objects rather than strings, the property name that should be displayed within the list
-     *     onSelect: a callback function to be called when the user clicks or hits enter on an item, the onSelect method is passed
-     *     the DOM element and the data object corresponding to the item
-     *     onHover: a callback function to be called when the user hovers over an item, the onHover method is passed the DOM element and the data
-     *     object corresponding to the item
-     * }
-     */
+     * options: a set of options, all options listed at the top of this file
+    */
     var typeAhead = function(input, options) {
-
-        /*
-         * Module variables:
-         * clickHandlers: event listeners for unbinding the click event on list items
-         * hoverHandlers: event listeners for unbinding the mouseover event on list items
-         * currentValue: the current value in the input box
-         */
-
+        
         var _this = this;
-
-        this.uid = ++uid;
-        this.currentValue = "";  // The current value in the input box
-        this.resetHandlers();
-
+        
+        // We need an element to attach the module to!
         if (!input) {
             console.error("Error: DOM input is required");
             return;
         }
 
-        // Public instance variables
+        /*
+         * Initialize module variables
+         * uid: unique indentifier for the instance of this module
+         * clickHandlers: event listeners for unbinding the click event on list items
+         * hoverHandlers: event listeners for unbinding the mouseover event on list items
+         * currentValue: the current value in the input box
+         */
+        this.uid = ++uid;
+        this.currentValue = "";
+        this.resetHandlers();
         this.input = input; 
+
+        // Initialize options
         this.options = options || {};
         this.options.property = this.options.property || 'name';
-
         if (this.options.activeClass) ACTIVE_CLASS = this.options.activeClass;
 
         // Bind key presses
@@ -168,7 +183,7 @@ var TypeAhead = (function() {
 
             // If an action key was pressed...
             if (action) {
-                actionFunctions[action].call(_this);
+                action.call(_this);
             }
             // Non-action character, check if the input value changed
             else {
@@ -185,10 +200,9 @@ var TypeAhead = (function() {
 
         // Append a hidden unordered list after the input
         this.createDropdown();
-
     };
 
-    // Functions shared by all instances
+    // Prototype
     typeAhead.prototype = {
 
         constructor: typeAhead,
