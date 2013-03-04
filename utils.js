@@ -23,8 +23,7 @@ exports.sendJson = function(res, json) {
  * Checks whether the id passed in is a valid MongoDB id
  */
 exports.isValidId = function(id) {
-    if (id && (id.length == 12 || id.length == 24))
-    {
+    if (id && (id.length == 12 || id.length == 24)) {
         return true;
     }
 

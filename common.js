@@ -92,18 +92,20 @@ exports.getById = function(collectionName, id) {
     return def;
 };
 
-exports.searchByName = function(collectionName, name) {
+exports.searchByName = function(collectionName, query, count) {
 
     var def = new $.Deferred();
 
-    if (!name) {
+    if (!query) {
         return def.reject(utils.formatError(global.errorMessages.incorrectParams));
     }
 
+    var limit = count || 5;
+
     var collection = new mongodb.Collection(global.client, collectionName);
     // TODO: really really basic regex match for now
-    var query = { name: new RegExp('.*' + name + '.*', 'i') };
-    collection.find(query).toArray(function(error, docs) {
+    var query = { name: new RegExp('\\b' + query, 'gi') };
+    collection.find(query, {name: 1, image: 1}).limit(limit).sort({name: 1}).toArray(function(error, docs) {
         if (error) def.reject(error);
         if (!docs) docs = [];
         def.resolve(docs);

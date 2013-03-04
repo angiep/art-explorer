@@ -49,8 +49,8 @@ exports.getByIds = function(ids, field) {
 /*
  * Attempts to match a museum's name to the name provided
  */
-exports.searchByName = function(name) {
-    return common.searchByName(collectionName, name);
+exports.searchByName = function(name, count) {
+    return common.searchByName(collectionName, name, count);
 };
 
 /*

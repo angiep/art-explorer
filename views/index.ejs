@@ -64,7 +64,12 @@
         <script src="/js/typeahead.js"></script>
         <script>
             var input = document.getElementById("searchbar");
-            var ta = new TypeAhead(input, {list: ["Louvre", "Museum of Modern Art", "Metropolitan Museum of Art"]});
+            var ta = new TypeAhead(input, {
+                source: '/api/museums', 
+                property: 'name',
+                onSelect: function(item) {
+                }
+            });
         </script>
 
 
