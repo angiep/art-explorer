@@ -213,6 +213,8 @@ var TypeAhead = (function() {
      *     property: if source is returning Objects rather than strings, the property name that should be displayed within the list
      *     onSelect: a callback function to be called when the user clicks or hits enter on an item, the onSelect method is passed
      *     the DOM element and the data object corresponding to the item
+     *     onHover: a callback function to be called when the user hovers over an item, the onHover method is passed the DOM element and the data
+     *     object corresponding to the item
      * }
      */
     var typeAhead = function(input, options) {
@@ -343,53 +345,86 @@ var TypeAhead = (function() {
 
             this.resetHandlers();
 
+            // Bind a click and hover event to each list item
             for (var i = 0; i < items.length; i++) {
+
                 var clickHandler = function(ev) {
                     _this.triggerSelect.call(_this, ev.target);
                 };
 
                 var hoverHandler = (function(i) {
-                    return function (ev) {
-                        var activeItems = _this.getActiveItems();
-                        var itemsToDeselect = [];
-                        for (var j = 0; j < activeItems.length; j++) {
-                            if (activeItems[j] !== ev.target) {
-                                itemsToDeselect.push(activeItems[j]);
-                            }
-                        }
-                        addClass(ev.target, ACTIVE_CLASS);
-                        _this.deselectItems(itemsToDeselect);
-                        _this.setIndex(i);
+                    return function(ev) {
+                        _this.triggerHover.call(_this, ev.target, i);
                     };
                 })(i);
 
-                items[i].addEventListener('click', clickHandler, false);
-                items[i].addEventListener('mouseover', hoverHandler, false);
-
-                this.clickHandlers.push(clickHandler);
-                this.hoverHandlers.push(hoverHandler);
+                this.registerEventListener(items[i], 'click', clickHandler, this.clickHandlers);
+                this.registerEventListener(items[i], 'mouseover', hoverHandler, this.hoverHandlers);
             }
         },
 
+        // Unbind all events from all list items
         unbindItems: function() {
             var items = this.getDropdownItems();
             for (var i = 0; i < items.length; i++) {
                 items[i].removeEventListener('click', this.clickHandlers[i], false);
                 items[i].removeEventListener('mouseover', this.hoverHandlers[i], false);
             }
+
+            this.resetHandlers();
         },
 
+        // Bind an event to an element
+        // element: the element to add the event listener to
+        // ev: the event to trigger (click, mouseover)
+        // handler: the function handler
+        // list: the list to add the function handler to for unbinding
+        registerEventListener: function(element, ev, handler, list) {
+            if (!element) return;
+            element.addEventListener(ev, handler, false);
+            list.push(handler);
+        },
+
+        // Empty out event handlers
+        // Called when items are unbound or new items are bound
         resetHandlers: function() {
             this.clickHandlers = [];
             this.hoverHandlers = [];
         },
 
+        // Perform default click behavior and call the optional onSelect function
         triggerSelect: function(item) {
+            // Default autocomplete behavior
             this.deselectItems(this.getActiveItems());
             addClass(item, ACTIVE_CLASS);
+
+            // Optional behavior
             if (typeof this.options.onSelect === 'function') {
                 var data = {};
                 this.options.onSelect(item, data);
+            }
+        },
+
+        // Perform default mouseover behavior and call the optional onHover function
+        triggerHover: function(item, index) {
+            // Default autocomplete behavior
+            var activeItems = this.getActiveItems();
+            var itemsToDeselect = [];
+
+            for (var j = 0; j < activeItems.length; j++) {
+                if (activeItems[j] !== item) {
+                    itemsToDeselect.push(activeItems[j]);
+                }
+            }
+
+            addClass(item, ACTIVE_CLASS);
+            this.deselectItems(itemsToDeselect);
+            this.setIndex(index);
+
+            // Optional behavior
+            if (typeof this.options.onHover === 'function') {
+                var data = {};
+                this.options.onHover(item, data);
             }
         },
 
