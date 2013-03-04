@@ -228,6 +228,11 @@ exports.getGeolocation = function(museumInfo) {
 
     common.makeExternalRequest(options).then(function(response) {
 
+        if (response.status === 'ZERO_RESULTS') {
+            def.reject();
+            return;
+        }
+
         // Format the result that they have provided into our own format
         var geo = response.results[0]
           , components = geo.address_components
@@ -308,6 +313,11 @@ exports.getNearbyMuseums = function(coordinates, within) {
  * fields: a set of key, value pairs that the museum will be updated with
  */
 exports.updateMuseum = function(id, fields) {
+
+    if (!utils.isValidId(id)) {
+        return utils.formatError(global.errorMessages.incorrectParams);
+    }
+
     var f = fields || {};
     var ownerColl = new mongodb.Collection(global.client, collectionName);
 

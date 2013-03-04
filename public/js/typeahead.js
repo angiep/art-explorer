@@ -67,6 +67,58 @@ function load(url, callback, errorCallback) {
 }
 
 /*
+ * Storage Methods
+ */
+DataStore = {
+
+    storeMap: {},
+    uid: 1,
+    storeId: 'DataStore' + (new Date).getTime(),
+
+
+    // DataStore.get(el, "hi");
+    get: function(element, key) {
+        return DataStore.getStore(element)[key] || null;
+    },
+
+    // DataStore.set(el, "hi", {"number": 4}
+    set: function(element, key, value) {
+        if (!value) return;
+        DataStore.getStore(element)[key] = value;
+        return value;
+    },
+
+    // DataStore.remove(el);
+    // DataStore.remove(el, "hi");
+    remove: function(element, key) {
+        if (key) {
+            var store = DataStore.getStore(element);
+            if (store[key]) delete store[key];
+        }
+        else {
+            var elementId = element[DataStore.storeId];
+            if (elementId) {
+                delete DataStore.storeMap[elementId];
+                delete element[DataStore.storeId];
+            }
+        }
+    },
+
+    getStore: function(element) {
+        var storeId = DataStore.storeId
+          , storeMap = DataStore.storeMap
+          , elementId = element[storeId]
+
+        if (!elementId) {
+            elementId = element[storeId] = DataStore.uid++;
+            storeMap[elementId]  = {};
+        }
+
+        return storeMap[elementId];
+    }
+};
+
+/*
  * Class Utility Methods 
  */
 function hasClass(el, name) {
@@ -90,9 +142,9 @@ function removeClass(el, name) {
 var TypeAhead = (function() {
     'use strict';
 
-    // Count maintains the number of instances of this widget
-    // Each instance is given it's own unique number (this.count) based on this count
-    if (count === undefined) var count = -1;
+    // uid maintains the number of instances of this widget
+    // Each instance is given it's own unique number (this.uid) based on this uid
+    if (uid === undefined) var uid = -1;
 
     // Static variables shared by all instances
     var ACTIVE_CLASS = 'highlight';
@@ -198,7 +250,7 @@ var TypeAhead = (function() {
             this.updateIndex();
         },
         'enter': function() {
-            console.log('enter action');
+            this.triggerSelect(this.getDropdownItems()[this.index]);
         }
     };
 
@@ -221,7 +273,6 @@ var TypeAhead = (function() {
 
         /*
          * Module variables:
-         * count: maintains the number of instances for this widget
          * clickHandlers: event listeners for unbinding the click event on list items
          * hoverHandlers: event listeners for unbinding the mouseover event on list items
          * currentValue: the current value in the input box
@@ -229,7 +280,7 @@ var TypeAhead = (function() {
 
         var _this = this;
 
-        this.count = ++count;
+        this.uid = ++uid;
         this.currentValue = "";  // The current value in the input box
         this.resetHandlers();
 
@@ -241,6 +292,7 @@ var TypeAhead = (function() {
         // Public instance variables
         this.input = input; 
         this.options = options || {};
+        this.options.property = this.options.property || 'name';
 
         if (this.options.activeClass) ACTIVE_CLASS = this.options.activeClass;
 
@@ -279,7 +331,9 @@ var TypeAhead = (function() {
         constructor: typeAhead,
 
         onKeyPress: function() {
-            var matches;
+            var matches
+              , labels;
+
             // If we're searching from a static list...
             if (this.options.list) {
                 matches = findMatches(this.currentValue, this.options.list);
@@ -288,19 +342,31 @@ var TypeAhead = (function() {
             // Or hook up to a server call
             else if (this.options.source) {
                 makeRequest(this.options.source, this.currentValue, function(matches) {
-                    matches = this.parseMatches(matches);
-                    this.updateDropdown(matches);
+                    // Looking at a list of strings
+                    if (matches[0] && typeof matches[0] === 'String') {
+                        this.updateDropdown(matches);
+                    }
+                    // Looking at a list of objects
+                    else {
+                        labels = this.parseMatches(matches);
+                        this.updateDropdown(labels, matches);
+                    }
                 }, this);
             }
         },
 
         parseMatches: function(matches) {
-            if (!this.options.property) return matches;
-
             var parsed = [];
 
+            // this.options.property defaults to name unless provided
             for (var i = 0; i < matches.length; i++) {
                 parsed.push(matches[i][this.options.property]);
+                /*
+                parsed.push({
+                    label: matches[i][this.options.property],
+                    data: matches[i]
+                });
+                */
             }
 
             return parsed;
@@ -315,7 +381,7 @@ var TypeAhead = (function() {
         },
 
         // items: an array of strings (text or html)
-        addItems: function(items) {
+        addItems: function(items, dataObjects) {
             var html = ''
               , fragment = document.createDocumentFragment()
               , li
@@ -331,6 +397,7 @@ var TypeAhead = (function() {
             }
 
             this.dropdown.appendChild(fragment.cloneNode(true));
+            this.setData(dataObjects);
             this.bindItems();
         },
 
@@ -400,7 +467,7 @@ var TypeAhead = (function() {
 
             // Optional behavior
             if (typeof this.options.onSelect === 'function') {
-                var data = {};
+                var data = DataStore.get(item, 'data');
                 this.options.onSelect(item, data);
             }
         },
@@ -428,19 +495,19 @@ var TypeAhead = (function() {
             }
         },
 
-        updateDropdown: function(items) {
+        updateDropdown: function(labels, dataObjects) {
             // Always clear the dropdown with a new search
             this.clearDropdown();
 
             // No matches returned, hide the dropdown
-            if (items.length === 0) {
+            if (labels.length === 0) {
                 this.hideDropdown();
                 return;
             }
 
             // Matches returned, add the matches to the list
             // and display the dropdown
-            this.addItems(items);
+            this.addItems(labels, dataObjects);
             this.displayDropdown();
         },
 
@@ -453,7 +520,7 @@ var TypeAhead = (function() {
             this.index = -1;
 
             // Append a unique ID
-            this.dropdown.id = 'dropdown' + this.count;
+            this.dropdown.id = 'dropdown' + this.uid;
 
             // Hide the list
             this.hideDropdown();
@@ -483,8 +550,30 @@ var TypeAhead = (function() {
         },
 
         clearDropdown: function() {
+            // Remove all event listeners
             this.unbindItems();
+
+            // Clear data from the data store
+            this.clearData();
+
+            // Completely remove all of the elements
             this.dropdown.innerHTML = '';
+        },
+
+        setData: function(dataObjects) {
+            if (!dataObjects || dataObjects.length === 0) return;
+
+            var items = this.getDropdownItems();
+            for (var i = 0; i < items.length; i++) {
+                DataStore.set(items[i], 'data', dataObjects[i]);
+            }
+        },
+
+        clearData: function() {
+            var items = this.getDropdownItems();
+            for (var i = 0; i < items.length; i++) {
+                DataStore.remove(items[i]);
+            }
         },
 
         selectItem: function(index, deselect) {
@@ -545,8 +634,8 @@ var TypeAhead = (function() {
             return this.index;
         },
         
-        getCount: function() {
-            return this.count;
+        getId: function() {
+            return this.uid;
         }
     };
 

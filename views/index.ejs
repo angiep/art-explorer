@@ -11,7 +11,7 @@
     <body>
         <div id="wrapper">
             <div class="header">
-                <h1><%= title %></h1>
+                <h1><a href="/"><%= title %></a></h1>
                 <div class="typeAhead">
                     <input id="searchbar" type="text" placeholder="Search for a museum"/>
                 </div>
@@ -51,23 +51,17 @@
             </div>
 
         </div>
-
-        <script type="text/javascript">
-            var data = "";
-            <% if (locals.dump) { %>
-                data = <%- dump %>;
-            <% } %>
-        </script>
-
-        <script data-main="/js/main" src="/js/lib/require.js"></script>
-
+        
         <script src="/js/typeahead.js"></script>
         <script>
             var input = document.getElementById("searchbar");
             var ta = new TypeAhead(input, {
                 source: '/api/museums', 
                 property: 'name',
-                onSelect: function(item) {
+                onSelect: function(item, data) {
+                    if (data && data._id) {
+                        window.location.href = '/museums/' + data._id;
+                    }
                 }
             });
         </script>

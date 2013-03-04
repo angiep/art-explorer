@@ -27,7 +27,7 @@ exports.info = function(req, res) {
         // Fetch geolocation if we don't already have it saved
         if (!museumInfo.location) {
             museum.getGeolocation(museumInfo).then(function(geo) {
-                museum.updateMuseum(museumInfo._id, { location: geo });
+                if (geo) museum.updateMuseum(req.params.museum_id, { location: geo });
             });
         }
 
