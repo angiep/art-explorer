@@ -152,18 +152,22 @@ var TypeAhead = (function() {
 
     var makeRequest = function(url, term, callback, _this) {
 
-        var that = _this || this;
+        var that = _this || this
+          , response;
 
         if (term === "") return callback.call(that, []);
 
         var success = function(xhr) {
             try {
-                var response = JSON.parse(xhr.responseText);
-                callback.call(that, response);
+                response = JSON.parse(xhr.responseText);
             }
             catch (e) {
                 console.error(e);
                 console.error('Error: Failed to parse response text into JSON');
+            }
+
+            if (response) {
+                callback.call(that, response);
             }
         };
 
@@ -204,16 +208,28 @@ var TypeAhead = (function() {
      * input: an input DOM element <input type="text" />
      * options: {
      *     list: an array of strings to check user input against, an alternative to making AJAX requests
+     *     activeClass: the class to be added to a list item when it is selected (through arrows, hovering or clicking), default is 'highlight'
      *     source: source URL to check user input against, should return a JSON array
      *     property: if source is returning Objects rather than strings, the property name that should be displayed within the list
-     *     onSelect: a callback function to be called when the user clicks or hits enter on an item
+     *     onSelect: a callback function to be called when the user clicks or hits enter on an item, the onSelect method is passed
+     *     the DOM element and the data object corresponding to the item
      * }
      */
     var typeAhead = function(input, options) {
 
+        /*
+         * Module variables:
+         * count: maintains the number of instances for this widget
+         * clickHandlers: event listeners for unbinding the click event on list items
+         * hoverHandlers: event listeners for unbinding the mouseover event on list items
+         * currentValue: the current value in the input box
+         */
+
         var _this = this;
+
         this.count = ++count;
-        this.currentValue = "";
+        this.currentValue = "";  // The current value in the input box
+        this.resetHandlers();
 
         if (!input) {
             console.error("Error: DOM input is required");
@@ -223,6 +239,8 @@ var TypeAhead = (function() {
         // Public instance variables
         this.input = input; 
         this.options = options || {};
+
+        if (this.options.activeClass) ACTIVE_CLASS = this.options.activeClass;
 
         // Bind key presses
         var onPress = function(e) {
@@ -241,7 +259,7 @@ var TypeAhead = (function() {
                 if (value !== _this.currentValue) {
                     _this.currentValue = value;
                     _this.onKeyPress.call(_this);
-                    _this.resetIndex();
+                    _this.setIndex();
                 }
             }
         };
@@ -310,7 +328,69 @@ var TypeAhead = (function() {
                 fragment.appendChild(li);
             }
 
-            this.dropdown.appendChild( fragment.cloneNode(true) );
+            this.dropdown.appendChild(fragment.cloneNode(true));
+            this.bindItems();
+        },
+
+        /*
+         * Bind click and hover events to the list items
+         */
+        bindItems: function() {
+            var _this = this
+              , items = this.getDropdownItems()
+              , handler
+              , wrapper = document;
+
+            this.resetHandlers();
+
+            for (var i = 0; i < items.length; i++) {
+                var clickHandler = function(ev) {
+                    _this.triggerSelect.call(_this, ev.target);
+                };
+
+                var hoverHandler = (function(i) {
+                    return function (ev) {
+                        var activeItems = _this.getActiveItems();
+                        var itemsToDeselect = [];
+                        for (var j = 0; j < activeItems.length; j++) {
+                            if (activeItems[j] !== ev.target) {
+                                itemsToDeselect.push(activeItems[j]);
+                            }
+                        }
+                        addClass(ev.target, ACTIVE_CLASS);
+                        _this.deselectItems(itemsToDeselect);
+                        _this.setIndex(i);
+                    };
+                })(i);
+
+                items[i].addEventListener('click', clickHandler, false);
+                items[i].addEventListener('mouseover', hoverHandler, false);
+
+                this.clickHandlers.push(clickHandler);
+                this.hoverHandlers.push(hoverHandler);
+            }
+        },
+
+        unbindItems: function() {
+            var items = this.getDropdownItems();
+            for (var i = 0; i < items.length; i++) {
+                items[i].removeEventListener('click', this.clickHandlers[i], false);
+                items[i].removeEventListener('mouseover', this.hoverHandlers[i], false);
+            }
+        },
+
+        resetHandlers: function() {
+            this.clickHandlers = [];
+            this.hoverHandlers = [];
+        },
+
+        triggerSelect: function(item) {
+            this.deselectItems(this.getActiveItems());
+            addClass(item, ACTIVE_CLASS);
+            if (typeof this.options.onSelect === 'function') {
+                var data = {};
+                this.options.onSelect(item, data);
+            }
         },
 
         updateDropdown: function(items) {
@@ -355,6 +435,10 @@ var TypeAhead = (function() {
             return this.dropdown.getElementsByTagName('li');
         },
 
+        getActiveItems: function() {
+            return this.dropdown.getElementsByClassName(ACTIVE_CLASS);
+        },
+
         displayDropdown: function() {
             this.dropdown.style.display = 'block';
         },
@@ -364,7 +448,7 @@ var TypeAhead = (function() {
         },
 
         clearDropdown: function() {
-            console.log('clearDropdown');
+            this.unbindItems();
             this.dropdown.innerHTML = '';
         },
 
@@ -406,7 +490,7 @@ var TypeAhead = (function() {
             // from the items we have saved?
             // Would be interesting to see if the document.getElementsByClassName makes
             // it slower 
-            this.deselectItems(document.getElementsByClassName(ACTIVE_CLASS));
+            this.deselectItems(this.getActiveItems());
 
             if (decrement) {
                 this.index--
@@ -418,8 +502,8 @@ var TypeAhead = (function() {
             this.selectItem(this.index);
         },
 
-        resetIndex: function() {
-            this.index = -1;
+        setIndex: function(idx) {
+            this.index = idx || idx === 0 ? idx : -1;
         },
 
         getIndex: function() {

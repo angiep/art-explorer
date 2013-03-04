@@ -30,7 +30,7 @@
     list-style-type: none;
     padding: 10px;
 }
-.typeAhead li:hover, .typeAhead li.highlight {
+.typeAhead li.highlight {
     background-color: #fcfcfc;
     cursor: pointer;
 }
