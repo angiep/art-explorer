@@ -148,7 +148,7 @@ var TypeAhead = (function() {
 
     // Static variables shared by all instances
     var ACTIVE_CLASS = 'highlight';
-    var keyActions = {
+    var KEY_ACTIONS = {
         13: 'enter',
         38: 'up',
         40: 'down'
@@ -167,7 +167,7 @@ var TypeAhead = (function() {
         var charCode = (typeof e.which === "number") ? e.which : e.keyCode;
 
         // Determine if this character is an action character
-        var action = keyActions[charCode.toString()];
+        var action = KEY_ACTIONS[charCode.toString()];
         if (action) return action;
 
         return;
@@ -358,15 +358,8 @@ var TypeAhead = (function() {
         parseMatches: function(matches) {
             var parsed = [];
 
-            // this.options.property defaults to name unless provided
             for (var i = 0; i < matches.length; i++) {
                 parsed.push(matches[i][this.options.property]);
-                /*
-                parsed.push({
-                    label: matches[i][this.options.property],
-                    data: matches[i]
-                });
-                */
             }
 
             return parsed;
@@ -389,7 +382,6 @@ var TypeAhead = (function() {
 
             for (var i = 0; i < items.length; i++) {
                 li = document.createElement('li');
-                //text = document.createTextNode(items[i]);
                 // Using innerHTML so we can potentially append
                 // more HTML
                 li.innerHTML = items[i];
@@ -409,8 +401,6 @@ var TypeAhead = (function() {
               , items = this.getDropdownItems()
               , handler
               , wrapper = document;
-
-            this.resetHandlers();
 
             // Bind a click and hover event to each list item
             for (var i = 0; i < items.length; i++) {
@@ -517,7 +507,7 @@ var TypeAhead = (function() {
             // Grab the unordered list
             this.dropdown = list.dropdown;
 
-            this.index = -1;
+            this.setIndex();
 
             // Append a unique ID
             this.dropdown.id = 'dropdown' + this.uid;
@@ -630,10 +620,6 @@ var TypeAhead = (function() {
             this.index = idx || idx === 0 ? idx : -1;
         },
 
-        getIndex: function() {
-            return this.index;
-        },
-        
         getId: function() {
             return this.uid;
         }
