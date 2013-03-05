@@ -35,7 +35,6 @@ var TypeAhead = (function() {
         40: function() { this.updateIndex(); }     // Down arrow
     };
 
-
     /* Private Methods */
 
     /*
@@ -126,6 +125,7 @@ var TypeAhead = (function() {
     /*
      * generateList
      * Create the initial list display and append it after the input element.
+     * Returns a reference to the wrapper and to the ul
      * HTML Structure:
      * <div class='wrapper'>
      *  <ul></ul>
@@ -143,7 +143,6 @@ var TypeAhead = (function() {
     
     /* 
      * Constructor
-     *
      * input: an input DOM element <input type="text" />
      * options: a set of options, all options listed at the top of this file
     */
@@ -151,17 +150,17 @@ var TypeAhead = (function() {
         
         var _this = this;
         
-        // We need an element to attach the module to!
+        // We need an element to attach the module to so throw an error and return if it is not provided
         if (!input) {
-            console.error("Error: DOM input is required");
+            console.error('Error: DOM input is required');
             return;
         }
 
         /*
          * Initialize module variables
          * uid: unique indentifier for the instance of this module
-         * clickHandlers: event listeners for unbinding the click event on list items
-         * hoverHandlers: event listeners for unbinding the mouseover event on list items
+         * clickHandlers: a list of event handlers for unbinding the click event on list items
+         * hoverHandlers: a list of event handlers for unbinding the mouseover event on list items
          * currentValue: the current value in the input box
          */
         this.uid = ++uid;
@@ -174,14 +173,15 @@ var TypeAhead = (function() {
         this.options.property = this.options.property || 'name';
         if (this.options.activeClass) ACTIVE_CLASS = this.options.activeClass;
 
-        // Bind key presses
+        // Function to call on key press
         var onPress = function(e) {
             e.preventDefault();
 
+            // Grab an action if the key is related to an action
             var action = getActionFromKey(e)
               , value;
 
-            // If an action key was pressed...
+            // An action key was pressed so perform the action
             if (action) {
                 action.call(_this);
             }
@@ -190,12 +190,12 @@ var TypeAhead = (function() {
                 value = _this.getInputValue();
                 if (value !== _this.currentValue) {
                     _this.currentValue = value;
-                    _this.onKeyPress.call(_this);
-                    _this.setIndex();
+                    _this.onInputChange.call(_this);
                 }
             }
         };
 
+        // Bind key presses
         this.input.onkeyup = onPress; 
 
         // Append a hidden unordered list after the input
@@ -207,23 +207,32 @@ var TypeAhead = (function() {
 
         constructor: typeAhead,
 
-        onKeyPress: function() {
+        /*
+         * Event Functions
+         */
+
+        /*
+         * onInputChange
+         * When the value of the input field has changed make an AJAX request from the source
+         * and update the dropdown with the returned values.
+         */
+        onInputChange: function() {
             var matches
               , labels;
 
-            // If we're searching from a static list...
+            // When searching from a static list, find the matches and update the dropdown with these matches
             if (this.options.list) {
                 matches = findMatches(this.currentValue, this.options.list);
                 this.updateDropdown(matches);
             }
-            // Or hook up to a server call
+            // Otherwise, hook up to a server call and update the dropdown with the matches
             else if (this.options.source) {
                 makeRequest(this.options.source, this.currentValue, function(matches) {
-                    // Looking at a list of strings
+                    // Looking at a list of strings, just pass the labels
                     if (matches[0] && typeof matches[0] === 'String') {
                         this.updateDropdown(matches);
                     }
-                    // Looking at a list of objects
+                    // Looking at a list of objects, need to pass the labels and the whole objects to store in the DOM element
                     else {
                         labels = this.parseMatches(matches);
                         this.updateDropdown(labels, matches);
@@ -232,6 +241,12 @@ var TypeAhead = (function() {
             }
         },
 
+        /*
+         * parseMatches
+         * matches: a list of objects that need to be parsed for one property
+         * Takes a list of objects and returns a list containing one of the properties from the objects.
+         * The property to be used within the list is set within options.property.
+         */
         parseMatches: function(matches) {
             var parsed = [];
 
@@ -242,36 +257,17 @@ var TypeAhead = (function() {
             return parsed;
         },
 
+        /*
+         * getInputValue
+         * Return the current input value.
+         */
         getInputValue: function() {
             return this.input.value;
         },
-       
-        getInput: function() {
-            return this.input;
-        },
-
-        // items: an array of strings (text or html)
-        addItems: function(items, dataObjects) {
-            var html = ''
-              , fragment = document.createDocumentFragment()
-              , li
-              , text;
-
-            for (var i = 0; i < items.length; i++) {
-                li = document.createElement('li');
-                // Using innerHTML so we can potentially append
-                // more HTML
-                li.innerHTML = items[i];
-                fragment.appendChild(li);
-            }
-
-            this.dropdown.appendChild(fragment.cloneNode(true));
-            this.setData(dataObjects);
-            this.bindItems();
-        },
 
         /*
-         * Bind click and hover events to the list items
+         * bindItems
+         * Bind click and hover events to each list item.
          */
         bindItems: function() {
             var _this = this
@@ -279,7 +275,6 @@ var TypeAhead = (function() {
               , handler
               , wrapper = document;
 
-            // Bind a click and hover event to each list item
             for (var i = 0; i < items.length; i++) {
 
                 var clickHandler = function(ev) {
@@ -297,7 +292,10 @@ var TypeAhead = (function() {
             }
         },
 
-        // Unbind all events from all list items
+        /*
+         * unbindItems
+         * Unbind all events from all list items
+         */
         unbindItems: function() {
             var items = this.getDropdownItems();
             for (var i = 0; i < items.length; i++) {
@@ -308,60 +306,109 @@ var TypeAhead = (function() {
             this.resetHandlers();
         },
 
-        // Bind an event to an element
-        // element: the element to add the event listener to
-        // ev: the event to trigger (click, mouseover)
-        // handler: the function handler
-        // list: the list to add the function handler to for unbinding
+        /*
+         * registerEventListener
+         * Bind an event to an element and save it's handler
+         * element: the element to add the event listener to
+         * ev: the event to trigger (click, mouseover)
+         * handler: the function handler
+         * list: the list to add the function handler to for unbinding
+         */
         registerEventListener: function(element, ev, handler, list) {
             if (!element) return;
             element.addEventListener(ev, handler, false);
             list.push(handler);
         },
 
-        // Empty out event handlers
-        // Called when items are unbound or new items are bound
+        /*
+         * resetHandlers
+         * Empty out event handers
+         * Called when all items are unbound
+         */
         resetHandlers: function() {
             this.clickHandlers = [];
             this.hoverHandlers = [];
         },
 
-        // Perform default click behavior and call the optional onSelect function
+        /*
+         * triggerSelect
+         * Perform default click behavior: active class is added to the element and 
+         * all other active elements become inactive.
+         * Call the optional onSelect function.
+         */
         triggerSelect: function(item) {
-            // Default autocomplete behavior
             this.deselectItems(this.getActiveItems());
             addClass(item, ACTIVE_CLASS);
 
-            // Optional behavior
             if (typeof this.options.onSelect === 'function') {
                 var data = DataStore.get(item, 'data');
                 this.options.onSelect(item, data);
             }
         },
 
-        // Perform default mouseover behavior and call the optional onHover function
+        /*
+         * triggerHover
+         * Perform default mouseover behavior: active class is added to the element
+         * and all other active elements become inactive
+         * Call the optional onHover function.
+         */
         triggerHover: function(item, index) {
-            // Default autocomplete behavior
-            var activeItems = this.getActiveItems();
-            var itemsToDeselect = [];
-
-            for (var j = 0; j < activeItems.length; j++) {
-                if (activeItems[j] !== item) {
-                    itemsToDeselect.push(activeItems[j]);
-                }
-            }
-
+            this.deselectItems(this.getActiveItems());
             addClass(item, ACTIVE_CLASS);
-            this.deselectItems(itemsToDeselect);
+
             this.setIndex(index);
 
-            // Optional behavior
             if (typeof this.options.onHover === 'function') {
                 var data = {};
                 this.options.onHover(item, data);
             }
         },
+        
+                        
+        /*
+         * Dropdown functions
+         */
 
+        /*
+         * addItems
+         * items: a list of strings
+         * dataObjects: a list of objects corresponding to the labels
+         * Creates <li>s for each item in the items list and once they have all
+         * been added to a document fragment, appends them to the dropdown.
+         * Once the items have been appended to the DOM, the DataStore is updated
+         * with the corresponding dataObjects. Lastly, event listeners are added
+         * to each of the items.
+         */
+        addItems: function(items, dataObjects) {
+            var html = ''
+              , fragment = document.createDocumentFragment()
+              , li
+              , text;
+
+            for (var i = 0; i < items.length; i++) {
+                li = document.createElement('li');
+                // Using innerHTML so we can potentially append
+                // more HTML
+                li.innerHTML = items[i];
+                fragment.appendChild(li);
+            }
+
+            this.dropdown.appendChild(fragment.cloneNode(true));
+
+            // setData checks whether dataObjects is undefined or not so no need to check here
+            // The items must be appended to the DOM first before the data can be set because the
+            // property that the DataStore attaches to the DOM element is wiped out when the elements are appended.
+            this.setData(dataObjects); 
+
+            this.bindItems();
+        },
+
+        /*
+         * updateDropdown
+         * labels: strings to be displayed within the list items of the dropdown
+         * dataObjects: objects to be stored within the list items
+         * Empties out the dropdown and appends a new set of list items if they exist.
+         */
         updateDropdown: function(labels, dataObjects) {
             // Always clear the dropdown with a new search
             this.clearDropdown();
@@ -378,7 +425,12 @@ var TypeAhead = (function() {
             this.displayDropdown();
         },
 
+        /*
+         * createDropdown
+         * Setup the initial dropdown.
+         */
         createDropdown: function() {
+            // This returns an object of {dropdown: DOM, wrapper: DOM}
             var list = generateList();
 
             // Grab the unordered list
@@ -394,10 +446,6 @@ var TypeAhead = (function() {
 
             // Append it after the input
             appendAfter(this.input, list.wrapper);
-        },
-
-        getDropdown: function() {
-            return this.dropdown;
         },
 
         getDropdownItems: function() {
@@ -417,6 +465,9 @@ var TypeAhead = (function() {
         },
 
         clearDropdown: function() {
+            // Reset index back to -1
+            this.setIndex();
+
             // Remove all event listeners
             this.unbindItems();
 
@@ -427,6 +478,16 @@ var TypeAhead = (function() {
             this.dropdown.innerHTML = '';
         },
 
+        /*
+         * DataStore Functions
+         */
+
+        /*
+         * setData
+         * dataObjects: objects to be attached to a DOM element.
+         * Stores the passed in objects onto the dropdown list items.
+         * Uses the DataStore functionality provided in utilities.js.
+         */
         setData: function(dataObjects) {
             if (!dataObjects || dataObjects.length === 0) return;
 
@@ -436,6 +497,10 @@ var TypeAhead = (function() {
             }
         },
 
+        /*
+         * clearData
+         * Empty the DataStore of all data corresponding to the current list items.
+         */
         clearData: function() {
             var items = this.getDropdownItems();
             for (var i = 0; i < items.length; i++) {
@@ -443,6 +508,15 @@ var TypeAhead = (function() {
             }
         },
 
+        /*
+         * List Item Functions
+         */
+
+        /*
+         * selectItem
+         * index: the index of the item to set as active or inactive
+         * deselect: a boolean of whether to set the item as active or inactive
+         */
         selectItem: function(index, deselect) {
             var items = this.getDropdownItems();
 
@@ -456,12 +530,20 @@ var TypeAhead = (function() {
             }
         },
 
+        /*
+         * deselectItems
+         * Takes a list of items to be deactivated.
+         */
         deselectItems: function(items) {
             for (var i = 0; i < items.length; i++) {
                 removeClass(items[i], ACTIVE_CLASS);
             }
         },
 
+        /*
+         * deselectAllItems
+         * Grabs all of the current list items and deactivates them.
+         */
         deselectAllItems: function() {
             var items = this.getDropdownItems();
             for (var i = 0; i < items.length; i++) {
@@ -469,11 +551,20 @@ var TypeAhead = (function() {
             }
         },
 
+        /*
+         * Index Functions
+         * Index maintains which list item is currently selected
+         */
+
+        /*
+         * updateIndex
+         * decrement: boolean of whether to increment or decrement the index
+         * Updates the index and activates the list item for that updated index.
+         */
         updateIndex: function(decrement) {
 
             // Make sure we stay within bounds
             var length = this.getDropdownItems().length - 1;
-            // Going to go below bounds
             if (decrement && this.index === 0) return;
             if (!decrement && this.index === length) return;
 
@@ -493,12 +584,17 @@ var TypeAhead = (function() {
             this.selectItem(this.index);
         },
 
+        /*
+         * setIndex
+         * idx: the value to change the index to
+         * Sets the index to a value without altering on list items.
+         * If no index is passed in then the index is reset back to -1.
+         * If an out of bounds index is passed then nothing is changed.
+         */
         setIndex: function(idx) {
+            // Make sure we stay within bounds again
+            if (idx < -1 || idx > this.getDropdownItems().length - 1) return;
             this.index = idx || idx === 0 ? idx : -1;
-        },
-
-        getId: function() {
-            return this.uid;
         }
     };
 
