@@ -30,22 +30,25 @@ var TypeAhead = (function() {
      * A list of key codes and their corresponding action functions
      */
     var actionFunctions = {
-        13: function() { this.triggerSelect(this.getDropdownItems()[this.index]); }, // Enter key
-        38: function() { this.updateIndex(true); }, // Up arrow
-        40: function() { this.updateIndex(); }     // Down arrow
+        // Enter key
+        13: function() { this.triggerSelect(this.getDropdownItems()[this.index]); },
+        // Up arrow
+        38: function() { this.updateIndex(true); },
+        // Down arrow
+        40: function() { this.updateIndex(); }
     };
 
     /* Private Methods */
 
     /*
      * getActionFromKey
-     * e: a keyup event
+     * ev: a keyup event
      * If the key is an action key (such as up arrow or enter), the function corresponding to this key is returned.
      * Returns undefined if the key pressed does not correspond to an action.
      */
-    var getActionFromKey = function(e) {
-        if (!e) return;
-        var charCode = (typeof e.which === "number") ? e.which : e.keyCode;
+    var getActionFromKey = function(ev) {
+        if (!ev) return;
+        var charCode = (typeof ev.which === "number") ? ev.which : ev.keyCode;
 
         // Determine if this character is an action character
         var action = actionFunctions[charCode.toString()];
@@ -58,7 +61,7 @@ var TypeAhead = (function() {
      * findMatches
      * term: a string to be matched against
      * items: the list of items to filter by this search term
-     * Checks whether each string in a list contains the search term
+     * Checks whether each string in a list contains the search term.
      * "Contains" means that the search term must be at the beginning of the string
      * or at the beginning of a word in the string (so after a space)
      */
@@ -97,6 +100,7 @@ var TypeAhead = (function() {
 
         if (term === "") return callback.call(that, []);
 
+        // Create success and fail functions for the AJAX request
         var success = function(xhr) {
             // JSON parsing can throw lots of fun errors, so try it and throw an error otherwise
             try {
@@ -116,6 +120,7 @@ var TypeAhead = (function() {
             console.error('Error: Status ' + xhr.status + '. Failed to load ' + url);
         };
 
+        // Append the query term onto the url
         url += '?query=' + encodeURIComponent(term);
         
         // Make the AJAX request
@@ -125,7 +130,7 @@ var TypeAhead = (function() {
     /*
      * generateList
      * Create the initial list display and append it after the input element.
-     * Returns a reference to the wrapper and to the ul
+     * Returns a reference to the div wrapper and to the ul dropdown.
      * HTML Structure:
      * <div class='wrapper'>
      *  <ul></ul>
@@ -159,6 +164,9 @@ var TypeAhead = (function() {
         /*
          * Initialize module variables
          * uid: unique indentifier for the instance of this module
+         * input: the input DOM element
+         * options: provided options
+         * index: the index of the currently selected list item
          * clickHandlers: a list of event handlers for unbinding the click event on list items
          * hoverHandlers: a list of event handlers for unbinding the mouseover event on list items
          * currentValue: the current value in the input box
@@ -173,8 +181,8 @@ var TypeAhead = (function() {
         this.options.property = this.options.property || 'name';
         if (this.options.activeClass) ACTIVE_CLASS = this.options.activeClass;
 
-        // Function to call on key press
-        var onPress = function(e) {
+        // Bind key presses
+        this.input.onkeyup = function(e) {
             e.preventDefault();
 
             // Grab an action if the key is related to an action
@@ -195,10 +203,7 @@ var TypeAhead = (function() {
             }
         };
 
-        // Bind key presses
-        this.input.onkeyup = onPress; 
-
-        // Append a hidden unordered list after the input
+        // Append a hidden ul after the input to begin
         this.createDropdown();
     };
 
@@ -245,13 +250,16 @@ var TypeAhead = (function() {
          * parseMatches
          * matches: a list of objects that need to be parsed for one property
          * Takes a list of objects and returns a list containing one of the properties from the objects.
-         * The property to be used within the list is set within options.property.
+         * The property to be used within the list is set within this.options.property.
          */
         parseMatches: function(matches) {
             var parsed = [];
 
             for (var i = 0; i < matches.length; i++) {
-                parsed.push(matches[i][this.options.property]);
+                // Check if that property exists on the object before adding it to the list
+                if (matches[i][this.options.property]) {
+                    parsed.push(matches[i][this.options.property]);
+                }
             }
 
             return parsed;
@@ -272,16 +280,17 @@ var TypeAhead = (function() {
         bindItems: function() {
             var _this = this
               , items = this.getDropdownItems()
-              , handler
+              , clickHandler
+              , hoverHandler
               , wrapper = document;
 
             for (var i = 0; i < items.length; i++) {
 
-                var clickHandler = function(ev) {
+                clickHandler = function(ev) {
                     _this.triggerSelect.call(_this, ev.target);
                 };
 
-                var hoverHandler = (function(i) {
+                hoverHandler = (function(i) {
                     return function(ev) {
                         _this.triggerHover.call(_this, ev.target, i);
                     };
@@ -308,7 +317,7 @@ var TypeAhead = (function() {
 
         /*
          * registerEventListener
-         * Bind an event to an element and save it's handler
+         * Bind an event to an element and save it's handler.
          * element: the element to add the event listener to
          * ev: the event to trigger (click, mouseover)
          * handler: the function handler
@@ -322,8 +331,8 @@ var TypeAhead = (function() {
 
         /*
          * resetHandlers
-         * Empty out event handers
-         * Called when all items are unbound
+         * Empty out event handlers.
+         * Called when all items are unbound.
          */
         resetHandlers: function() {
             this.clickHandlers = [];
@@ -332,9 +341,9 @@ var TypeAhead = (function() {
 
         /*
          * triggerSelect
-         * Perform default click behavior: active class is added to the element and 
-         * all other active elements become inactive.
-         * Call the optional onSelect function.
+         * Perform default click behavior: element that the event is triggered on is activated 
+         * and all other active elements are deactivated.
+         * Call the optional onSelect function after.
          */
         triggerSelect: function(item) {
             this.deselectItems(this.getActiveItems());
@@ -348,9 +357,9 @@ var TypeAhead = (function() {
 
         /*
          * triggerHover
-         * Perform default mouseover behavior: active class is added to the element
-         * and all other active elements become inactive
-         * Call the optional onHover function.
+         * Perform default mouseover behavior: element that the event is triggered on is activated
+         * and all other active elements are deactived.
+         * Call the optional onHover function after.
          */
         triggerHover: function(item, index) {
             this.deselectItems(this.getActiveItems());
@@ -359,7 +368,7 @@ var TypeAhead = (function() {
             this.setIndex(index);
 
             if (typeof this.options.onHover === 'function') {
-                var data = {};
+                var data = DataStore.get(item, 'data');
                 this.options.onHover(item, data);
             }
         },
@@ -388,14 +397,14 @@ var TypeAhead = (function() {
             for (var i = 0; i < items.length; i++) {
                 li = document.createElement('li');
                 // Using innerHTML so we can potentially append
-                // more HTML
+                // more HTML, not just text
                 li.innerHTML = items[i];
                 fragment.appendChild(li);
             }
 
             this.dropdown.appendChild(fragment.cloneNode(true));
 
-            // setData checks whether dataObjects is undefined or not so no need to check here
+            // setData checks whether dataObjects is undefined or not so no need to check here.
             // The items must be appended to the DOM first before the data can be set because the
             // property that the DataStore attaches to the DOM element is wiped out when the elements are appended.
             this.setData(dataObjects); 
@@ -464,6 +473,12 @@ var TypeAhead = (function() {
             this.dropdown.style.display = 'none';
         },
 
+        /*
+         * clearDropdown
+         * Completely empty out the ul element.
+         * Before removing all of the list items, all event listeners are unbound
+         * and all corresponding data is cleared.
+         */
         clearDropdown: function() {
             // Reset index back to -1
             this.setIndex();
@@ -532,7 +547,7 @@ var TypeAhead = (function() {
 
         /*
          * deselectItems
-         * Takes a list of items to be deactivated.
+         * items: a list of items to be deactivated.
          */
         deselectItems: function(items) {
             for (var i = 0; i < items.length; i++) {
