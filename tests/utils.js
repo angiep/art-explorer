@@ -27,12 +27,12 @@ describe('generateURL', function(){
         it('generated URL should match the provided URL', function(){
             var parameters = { maxlength: 800, key: freebase.key }
             var path = utils.generateURL(freebase.articlesPath, '/m/lol', parameters);
-            assert.equal('/api/trans/blurb//m/lol?maxlength=800&key=AIzaSyDWnuOnTsNHDcyCTgk0FOksN0OmPpak6og', path);
+            assert.equal('/freebase/v1/text/m/lol?maxlength=800&key=AIzaSyDWnuOnTsNHDcyCTgk0FOksN0OmPpak6og', path);
         });
 
         it('generated URL should match the provided URL', function(){
             var path = utils.generateURL(freebase.articlesPath, '/m/lol123');
-            assert.equal('/api/trans/blurb//m/lol123', path);
+            assert.equal('/freebase/v1/text/m/lol123', path);
         });
 
     });
