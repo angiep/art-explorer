@@ -1,5 +1,5 @@
 {
-  "name": "Art Explorer",
+  "name": "art-explorer",
   "author": "Angela Panfil",
   "version": "0.0.1",
   "private": true,
@@ -11,6 +11,6 @@
     "ejs": "*",
     "cloneextend": "0.0.3",
     "jquery": "1.8.3",
-    "mongodb": 1.2.7"
+    "mongodb": "1.2.7"
   }
 }
