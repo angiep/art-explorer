@@ -9,6 +9,12 @@ function forEachIn(object, action) {
     }
 };
 
+function forEach(list, callback) {
+    for (var i = 0, len = list.length; i < len; i++) {
+        if (typeof callback === 'function') callback(list[i], i);
+    }
+};
+
 /*
  * DOM Manipulation Methods
  */

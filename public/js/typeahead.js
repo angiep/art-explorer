@@ -74,12 +74,12 @@ var TypeAhead = (function() {
         items.sort(); // Sort alphabetically
 
         // TODO: maybe provide a filter method for Array instead? not supported before IE9
-        for (var i = 0; i < items.length; i++) {
+        forEach(items, function(item, i) {
             re = new RegExp('\\b' + term, 'gi'); 
-            if (items[i].match(re)) {
-                matches.push(items[i]);
+            if (item.match(re)) {
+                matches.push(item);
             }
-        }
+        });
 
         return matches;
     };
@@ -254,13 +254,14 @@ var TypeAhead = (function() {
          */
         parseMatches: function(matches) {
             var parsed = [];
+            var _this = this;
 
-            for (var i = 0; i < matches.length; i++) {
+            forEach(matches, function(match, i) {
                 // Check if that property exists on the object before adding it to the list
-                if (matches[i][this.options.property]) {
-                    parsed.push(matches[i][this.options.property]);
+                if (match[_this.options.property]) {
+                    parsed.push(match[_this.options.property]);
                 }
-            }
+            });
 
             return parsed;
         },
@@ -284,7 +285,7 @@ var TypeAhead = (function() {
               , hoverHandler
               , wrapper = document;
 
-            for (var i = 0; i < items.length; i++) {
+            forEach(items, function(item, i) {
 
                 clickHandler = function(ev) {
                     _this.triggerSelect.call(_this, ev.target);
@@ -296,9 +297,9 @@ var TypeAhead = (function() {
                     };
                 })(i);
 
-                this.registerEventListener(items[i], 'click', clickHandler, this.clickHandlers);
-                this.registerEventListener(items[i], 'mouseover', hoverHandler, this.hoverHandlers);
-            }
+                _this.registerEventListener(items[i], 'click', clickHandler, _this.clickHandlers);
+                _this.registerEventListener(items[i], 'mouseover', hoverHandler, _this.hoverHandlers);
+            });
         },
 
         /*
@@ -306,11 +307,13 @@ var TypeAhead = (function() {
          * Unbind all events from all list items
          */
         unbindItems: function() {
-            var items = this.getDropdownItems();
-            for (var i = 0; i < items.length; i++) {
-                items[i].removeEventListener('click', this.clickHandlers[i], false);
-                items[i].removeEventListener('mouseover', this.hoverHandlers[i], false);
-            }
+            var _this = this
+              , items = this.getDropdownItems();
+
+            forEach(items, function(item, i) {
+                items[i].removeEventListener('click', _this.clickHandlers[i], false);
+                items[i].removeEventListener('mouseover', _this.hoverHandlers[i], false);
+            });
 
             this.resetHandlers();
         },
@@ -394,14 +397,14 @@ var TypeAhead = (function() {
               , li
               , text;
 
-            for (var i = 0; i < items.length; i++) {
+            forEach(items, function(item, i) {
                 li = document.createElement('li');
                 // Using innerHTML so we can potentially append
                 // more HTML, not just text
                 li.innerHTML = items[i];
                 fragment.appendChild(li);
-            }
-
+            });
+            
             this.dropdown.appendChild(fragment.cloneNode(true));
 
             // setData checks whether dataObjects is undefined or not so no need to check here.
@@ -507,9 +510,9 @@ var TypeAhead = (function() {
             if (!dataObjects || dataObjects.length === 0) return;
 
             var items = this.getDropdownItems();
-            for (var i = 0; i < items.length; i++) {
-                DataStore.set(items[i], 'data', dataObjects[i]);
-            }
+            forEach(items, function(item , i) {
+                DataStore.set(item, 'data', dataObjects[i]);
+            });
         },
 
         /*
@@ -518,9 +521,9 @@ var TypeAhead = (function() {
          */
         clearData: function() {
             var items = this.getDropdownItems();
-            for (var i = 0; i < items.length; i++) {
+            forEach(items, function(item, i) {
                 DataStore.remove(items[i]);
-            }
+            });
         },
 
         /*
@@ -550,9 +553,9 @@ var TypeAhead = (function() {
          * items: a list of items to be deactivated.
          */
         deselectItems: function(items) {
-            for (var i = 0; i < items.length; i++) {
-                removeClass(items[i], ACTIVE_CLASS);
-            }
+            forEach(items, function(item, i) {
+                removeClass(item, ACTIVE_CLASS);
+            });
         },
 
         /*
@@ -561,9 +564,9 @@ var TypeAhead = (function() {
          */
         deselectAllItems: function() {
             var items = this.getDropdownItems();
-            for (var i = 0; i < items.length; i++) {
-                removeClass(items[i], ACTIVE_CLASS);
-            }
+            forEach(items, function(item, i) {
+                removeClass(item, ACTIVE_CLASS);
+            });
         },
 
         /*
