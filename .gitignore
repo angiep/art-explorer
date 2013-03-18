@@ -3,3 +3,5 @@ tools/json/
 tools/freebase_key
 tools/categories.json
 dump/
+Capfile
+config/
