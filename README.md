@@ -8,11 +8,12 @@ Compiled from http://www.freebase.com/schema/visual_art
 
 To Do
 ============
-1. Retrieve list of popular museums
-2. Retrieve information on each individual museum
-3. Retrieve list of artworks in each museum
-4. Retrieve information on each piece of artwork
-5. Retrieve information on each artist
+1. Fix nearby locations
+2. Create more categories
+3. Create a navigation menu on homepage
+4. Add Google Maps display on museum page
+5. Allow searches by city
+6. Allow searchs by artwork
 
 Scope
 ============
@@ -21,7 +22,7 @@ Scope
 3. Artwork page: View image and general information about the artwork
 4. Artist page: View general information about the artist and a list of their artworks
 
-Methods
+Active Methods
 ============
 * GET /museums - returns a list of museums
 * GET /museums/:id - returns a museum
@@ -30,9 +31,6 @@ Methods
 * GET /artists/:id - returns an artist
 * GET /artworks - returns a list of artworks
 * GET /artworks/:id - returns an artwork
-* POST /museums - adds a new museum
-* POST /artworks - adds a new artwork
-* POST /artist - adds a new artist
 
 Art.sy API
 ============
